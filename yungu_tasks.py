@@ -89,7 +89,11 @@ yungu_tasks.py — task.yungu.org 任务/课表/评论读取、接口侦察，�
 """
 
 import argparse
+import base64
 import datetime
+import email.utils
+import hashlib
+import hmac
 import json
 import mimetypes
 import os
@@ -99,7 +103,6 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import uuid
 
 BASE = os.environ.get("YUNGU_BASE", "https://task.yungu.org").rstrip("/")
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -586,50 +589,97 @@ OSS_BUCKET = "yungu-common"
 SUBMITTABLE = (1, 3)
 
 
-def _multipart(field, filename, data, content_type):
-    boundary = "----YunguUpload" + uuid.uuid4().hex
-    head = ('--%s\r\nContent-Disposition: form-data; name="%s"; filename="%s"\r\n'
-            'Content-Type: %s\r\n\r\n' % (boundary, field, filename, content_type)).encode("utf-8")
-    return boundary, head + data + ("\r\n--%s--\r\n" % boundary).encode("utf-8")
+def _oss_credentials(cookie):
+    """取 OSS 直传凭证。返回 (dict, 错误说明)。"""
+    pl, note, st, text = call("/api/sts/token", cookie, params={"type": "1"})
+    if isinstance(pl, dict) and pl.get("status") is True and isinstance(pl.get("content"), dict):
+        return pl["content"], None
+    return None, note
 
 
-def raw_post(url, body_bytes, headers, timeout=60):
-    """multipart 上传用的底层请求（http_request 只发 JSON，不能复用）。"""
-    req = urllib.request.Request(url, data=body_bytes, method="POST", headers=headers)
+def _oss_put(oss, key, data, mime, timeout=90):
+    """把字节直传 OSS（阿里云 V1 签名，HMAC-SHA1，纯标准库）。返回 (状态码, ETag, 错误)。"""
+    endpoint = oss["endpoint"].replace("https://", "").replace("http://", "").strip("/")
+    url = "https://%s.%s/%s" % (oss["bucketName"], endpoint, key)
+    date = email.utils.formatdate(usegmt=True)
+    md5 = base64.b64encode(hashlib.md5(data).digest()).decode()
+    canon_headers = "x-oss-security-token:%s\n" % oss["stsToken"]
+    canon_resource = "/%s/%s" % (oss["bucketName"], key)
+    to_sign = "PUT\n%s\n%s\n%s\n%s%s" % (md5, mime, date, canon_headers, canon_resource)
+    sig = base64.b64encode(hmac.new(oss["accessSecret"].encode("utf-8"),
+                                    to_sign.encode("utf-8"), hashlib.sha1).digest()).decode()
+    req = urllib.request.Request(url, data=data, method="PUT", headers={
+        "Date": date, "Content-MD5": md5, "Content-Type": mime,
+        "x-oss-security-token": oss["stsToken"],
+        "Authorization": "OSS %s:%s" % (oss["accessKeyId"], sig),
+    })
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return r.status, _decode(r.read(), r.headers)
+            return r.status, r.headers.get("ETag"), None
     except urllib.error.HTTPError as e:
-        return e.code, _decode(e.read(), e.headers)
+        return e.code, None, e.read().decode("utf-8", "replace")[:200]
     except Exception as e:  # noqa: BLE001
-        return 0, "<network error: %s>" % e
+        return 0, None, str(e)
 
 
-def upload_file(path, cookie):
-    """上传一个成果文件，返回 (fileId, 说明)。"""
+def verify_file_readable(cookie, file_id, expect=None):
+    """回读该 fileId 的字节 —— 这是判断上传真假的唯一可信判据。
+
+    /api/upload_file/new 只要元数据格式对就会返回 status:true 和 fileId，
+    即使字节从没传上去（实测踩过：POST 一发就走，拿到 fileId，回读 404）。
+    """
+    req = urllib.request.Request(
+        "%s/api/preview_file?id=%s" % (BASE, file_id),
+        headers={"User-Agent": UA, "Cookie": cookie,
+                 "Referer": BASE + "/umiTask", "X-Requested-With": "XMLHttpRequest"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            body = r.read()
+            if expect is not None and body != expect:
+                return False, "回读内容与本地文件不一致（%d vs %d 字节）" % (len(body), len(expect))
+            return True, "回读 %d 字节，与本地一致" % len(body)
+    except urllib.error.HTTPError as e:
+        return False, "回读失败 HTTP %s（字节没真正落到 OSS）" % e.code
+    except Exception as e:  # noqa: BLE001
+        return False, "回读异常 %s" % e
+
+
+def upload_file(path, cookie, verify=True):
+    """上传一个成果文件，返回 (fileId, 说明)。
+
+    真实流程（2026-09-22 抓包确认，三步，缺一不可）：
+      1) GET  /api/sts/token?type=1         拿 OSS 直传凭证
+      2) PUT  https://<bucket>.<endpoint>/taskFile/<ts>_<name>   字节直传 OSS
+      3) GET  /api/upload_file/new?<元数据>  注册元数据 -> fileId
+    注意第 3 步是 GET（静态目录里本来就是 GET，曾被我误改成 POST）。
+    """
     name = os.path.basename(path)
     with open(path, "rb") as fh:
         data = fh.read()
     mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
-    ts = int(time.time() * 1000)
-    params = {"fileName": name, "bucketName": OSS_BUCKET, "fileSize": str(len(data)),
-              "fileType": mime, "fileUrl": "taskFile/%d_%s" % (ts, name),
-              "percent": "100", "uuid": str(ts)}
-    url = BASE + UPLOAD_ENDPOINT + "?" + urllib.parse.urlencode(params)
-    boundary, body = _multipart("files", name, data, mime)
-    headers = {
-        "User-Agent": UA, "Cookie": cookie,
-        "Content-Type": "multipart/form-data; boundary=%s" % boundary,
-        "Referer": BASE + "/umiTask", "X-Requested-With": "XMLHttpRequest",
-        "Accept": "application/json, text/plain, */*",
-    }
-    st, text = raw_post(url, body, headers)
-    pl = parse_json(text)
+    oss, err = _oss_credentials(cookie)
+    if not oss:
+        return None, "取 OSS 凭证失败：%s" % err
+    key = "%s%d_%s" % (oss.get("ossPath") or "taskFile/", int(time.time() * 1000), name)
+    st, etag, oerr = _oss_put(oss, key, data, mime)
+    if st != 200:
+        return None, "OSS 直传失败 HTTP %s %s" % (st, oerr)
+    params = {"fileName": name, "bucketName": oss["bucketName"], "fileSize": str(len(data)),
+              "fileType": mime, "fileUrl": key,
+              "percent": "100", "uuid": key.split("/")[-1].split("_")[0]}
+    pl, note, _, text = call(UPLOAD_ENDPOINT, cookie, params=params)
+    fid = None
     if isinstance(pl, dict) and pl.get("status") is True and isinstance(pl.get("content"), dict):
         fid = pl["content"].get("fileId")
-        if fid:
-            return fid, "上传成功 fileId=%s" % fid
-    return None, "上传失败（HTTP %s）：%s" % (st, (text or "")[:200])
+    if not fid:
+        return None, "注册元数据失败：%s" % note
+    msg = "fileId=%s (OSS %dB, ETag=%s)" % (fid, len(data), (etag or "").strip('"')[:12])
+    if verify:
+        ok, why = verify_file_readable(cookie, fid, data)
+        if not ok:
+            return None, "上传未真正生效 —— %s" % why
+        msg += "；" + why
+    return fid, msg
 
 
 def cmd_submit(args):
@@ -675,7 +725,7 @@ def cmd_submit(args):
     file_ids = []
     for p in args.file or []:
         if not args.yes:
-            print("  [dry-run] 将上传 %s → POST %s" % (p, UPLOAD_ENDPOINT))
+            print("  [dry-run] 将上传 %s → OSS 直传（sts/token → PUT OSS → upload_file/new）" % p)
             file_ids.append("<fileId>")
             continue
         fid, msg = upload_file(p, args.cookie)

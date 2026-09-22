@@ -216,7 +216,7 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf
 
 任务：test homework  (taskPublishId=91958)
   courseId=18349  taskUserRelationId=4458494  当前 achievementStatus=1  要求附件=True
-  [dry-run] 将上传 ./hw.pdf → POST /api/upload_file/new
+  [dry-run] 将上传 ./hw.pdf → OSS 直传（sts/token → PUT OSS → upload_file/new）
 
 将发送：POST /api/submitAchievementSendMessage
   {"courseId": 18349, "fileList": [11006958, "<fileId>"], "studentIds": [<student-id>],
@@ -240,7 +240,10 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf
 ### ⚠️ 提交不可自助撤回
 
 学生侧**没有撤回接口**。提交后只能请教师「退回修改」（状态回到 `3`）才能重交。
-所以脚本按这个顺序设卡，**每一步都在写入之前**：
+所以上传本身是三步（取凭证 → OSS 签名 PUT → 注册元数据），并在最后**回读校验字节真的落地** ——
+只做最后一步也能拿到 `fileId`，但文件是空的（实测踩过）。
+
+脚本按这个顺序设卡，**每一步都在写入之前**：
 
 1. 状态不在 `{1=未交, 3=待修改}` → 拒绝（不会替你绕过教师退回机制）
 2. 任务要求附件但没给 `--file` → 拒绝
@@ -392,7 +395,7 @@ Cookie 过期（有效期约 **1–2 周**），重新从浏览器复制一份�
 | `week_window(offset, date)` | 算周一日期与毫秒时间窗 |
 | `resolve_cookie(args)` | 四级会话来源解析 |
 | `fetch_achievement(cookie, taskPublishId)` | 取任务成果详情（含评论），**内部走 POST + JSON body** |
-| `upload_file(path, cookie)` | 上传成果文件，返回 `fileId`（multipart，字段名 `files`） |
+| `upload_file(path, cookie)` | 上传成果文件（STS 凭证 → OSS 签名 PUT → 注册元数据 → **回读校验**），返回 `fileId` |
 | `cmd_tasks` / `cmd_timetable` / `cmd_comments` / `cmd_submit` / `cmd_probe` / `cmd_recon` | 六个子命令 |
 
 ### 关键常量

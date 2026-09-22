@@ -20,45 +20,71 @@
 
 ## 1. 三步契约
 
-### 第 1 步 · 上传成果文件
+### 第 1 步 · 上传成果文件（三步，缺一不可）
+
+> ⚠️ **这一步最初被我实现错了，且错得很隐蔽。** 只做第 3 步也能拿到 `status:true` 和
+> `fileId`，但**字节根本没上传**，回读该 fileId 是 `404`。
+> 判据只能是「**服务器能否把文件读回来**」，不能是"接口返回成功"。
+
+**① 取 OSS 直传凭证**
 
 ```
-POST /api/upload_file/new?fileName=<名>&bucketName=yungu-common&fileSize=<字节数>
-                        &fileType=<mime>&fileUrl=taskFile/<毫秒时间戳>_<文件名>
-                        &percent=100&uuid=<毫秒时间戳>
-Content-Type: multipart/form-data
-表单字段名：files
+GET /api/sts/token?type=1
 ```
 
-| 参数 | 必填 | 说明 |
-|---|---|---|
-| `fileName` | 是 | 文件名 |
-| `bucketName` | 是 | 实测固定 `yungu-common` |
-| `fileSize` | 是 | 字节数 |
-| `fileType` | 是 | MIME，如 `text/plain`、`application/pdf` |
-| `fileUrl` | 是 | **OSS objectKey，由客户端自己算**：`taskFile/<ts>_<fileName>` |
-| `percent` | 是 | 实测恒为 `100` |
-| `uuid` | 是 | 与 `fileUrl` 里同一个 `<ts>` |
+响应 `content` 字段（实测）：
 
-响应（实测）：
+| 字段 | 说明 |
+|---|---|
+| `accessKeyId` / `accessSecret` | STS 临时密钥 |
+| `stsToken` | STS 安全令牌（较长） |
+| `bucketName` | 实测 `yungu-common` |
+| `endpoint` | 形如 `oss-cn-hangzhou.aliyuncs.com` |
+| `region` / `ossPath` | 区域；对象前缀（实测 `taskFile/`） |
 
-```json
-{"ifLogin":true,"status":true,"message":"操作成功","code":0,
- "content":{"fileId":11007051,"fileName":"probe-response-check.txt",
-            "url":"/api/preview_file?id=11007051",
-            "previewImage":"/api/file/preview?previewId=370281",
-            "type":"txt",
-            "downloadUrl":"https://task.yungu.org/api/new_download_file?id=11007051",
-            "sourceFileUrl":"/api/preview_source_file?id=11007051",
-            "storeMeta":null,"fileExtends":null,"quizQuestionIds":[],"hasQuiz":false}}
+**② 把字节直传 OSS（这是真正的上传）**
+
+```
+PUT https://<bucketName>.<endpoint>/<ossPath><毫秒时间戳>_<文件名>
+Date: <RFC1123 GMT>
+Content-MD5: <md5 的 base64>
+Content-Type: <mime>
+x-oss-security-token: <stsToken>
+Authorization: OSS <accessKeyId>:<签名>
 ```
 
-→ **只要拿 `content.fileId`**，后面提交用。
+签名是阿里云 OSS **V1** 规范（HMAC-SHA1），纯标准库即可实现：
 
-> 上传是**服务端代理**（不是前端直传 OSS），所以不需要实现 OSS 签名。
-> `/api/sts/token` 虽然存在，但学生提交链路没走它。
+```python
+string_to_sign = "PUT\n" + content_md5 + "\n" + content_type + "\n" + date + "\n" \
+                 + "x-oss-security-token:" + sts_token + "\n" \
+                 + "/" + bucket + "/" + object_key
+signature = base64(hmac_sha1(access_secret, string_to_sign))
+```
+
+成功返回 `200` 与 `ETag`。
+
+**③ 注册元数据，拿 `fileId`**
+
+```
+GET /api/upload_file/new?fileName=<名>&bucketName=<桶>&fileSize=<字节数>
+                        &fileType=<mime>&fileUrl=<objectKey>&percent=100&uuid=<时间戳>
+```
+
+> 注意是 **GET**（接口目录里本来就是 GET，我曾按"上传应该用 POST"的直觉改错成 POST）。
+
+响应 `content.fileId` 即后续提交要用的 id。
+
+**④ 必做：回读校验**
+
+```
+GET /api/preview_file?id=<fileId>
+```
+
+返回 `200` 且字节与本地一致，才算上传成功。返回 `404` 就说明**字节没落上去**。
 
 ### 第 2 步 · 提交
+
 
 ```
 POST /api/submitAchievementSendMessage
@@ -87,6 +113,11 @@ Content-Type: application/json;charset=UTF-8
 
 > ⚠️ **不是 `/api/capture/submitCapture`** —— 那个是**教师端发布任务**用的。
 > 光看接口名一定会选错。学生提交走的是 `submitAchievementSendMessage`。
+
+> 另观察到应用在上传后还会调
+> `GET /api/student/submitAchievementForDrafts?taskUserRelationId=<id>&fileIds=<fid>`，
+> 把附件暂存为草稿。**实测不调它也能提交成功**（直接提交时 fileId 已被绑定），
+> 所以本脚本不发这个请求 —— 但它解释了为什么"取消提交"后附件仍会留在下次的 `fileList` 里。
 
 ### 第 3 步 · 回读断言（不要只信 HTTP 200）
 
