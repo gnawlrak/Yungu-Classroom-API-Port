@@ -44,7 +44,7 @@
 ## 这不是什么
 
 - ❌ 不是官方 API 文档（学校没有公开 API）
-- ❌ 不是通用写操作客户端：**只实现了 1 个写端点**，其余 380 个写接口一律不调用
+- ❌ 不是通用写操作客户端：**只实现了 1 个写端点**，其余 381 个写接口一律不调用
 - ❌ 拿不到加密字段（例如学情总览里的 `totalScore` 是前端解密的密文）
 - ❌ 没有批量代交、没有绕过权限的路径
 
@@ -85,6 +85,9 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 上传是**三步**（取 OSS 凭证 → 签名 PUT 直传字节 → 注册元数据），并且**强制回读校验** ——
 字节读不回来就报失败（只做第三步也能拿到 `fileId`，但文件是空的，这个坑踩过）。
 
+想让新版本**不再包含**某个已交附件：`--drop-file <fileId>` —— 这里的「删除」等于新版本剔除该
+`fileId`（旧版本仍在历史里，无法自助删除）。也可用 `--only-new` 只带本次上传的文件。
+
 脚本在**任何写入之前**依次设卡：状态可提交性（`{未交,待修改}`，已交需 `--resubmit`）→ 附件要求 →
 身份字段完整性（缺字段会在上传前就拒绝，不会在学校存储里留孤儿文件）→ dry-run → 交互确认 →
 提交后**回读状态断言**真的变了才报成功。
@@ -101,7 +104,7 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 | [`docs/api-schedule.md`](docs/api-schedule.md) | **课表**接口契约（时间窗算法、65 个字段、可跑代码） |
 | [`docs/api-submit.md`](docs/api-submit.md) | **提交成果**契约（上传→提交→回读，含撤回边界） |
 | [`docs/api-taxonomy.md`](docs/api-taxonomy.md) | 1345 条接口的功能分类（19 个功能域） |
-| [`docs/script.md`](docs/script.md) | 脚本用法：6 个子命令、全部选项、退出码、排错 |
+|| [`docs/script.md`](docs/script.md) | 脚本用法：6 个子命令（另有 `task` 别名）、全部选项、退出码、排错 |
 | [`docs/recon-method.md`](docs/recon-method.md) | **接口侦察方法**：静态提取 + 浏览器 hook 完整配方 |
 | [`yungu_api_catalog.md`](yungu_api_catalog.md) | 1345 条接口目录 |
 

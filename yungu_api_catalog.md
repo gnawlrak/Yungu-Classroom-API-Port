@@ -1,6 +1,6 @@
 # task.yungu.org 对外开放接口目录
 
-- 来源：`cdn-assets.yungu.org/task/https://cdn-assets.yungu.org/task/20260922090917/`（主包 + 615 个 chunk，含 webpack 声明清单里的全部 id）
+- 来源：`https://cdn-assets.yungu.org/task/20260922090917/`（主包 + 615 个 chunk，含 webpack 声明清单里的全部 id）
 - 抓取时间对应的构建号：**https://cdn-assets.yungu.org/task/20260922090917**（站点重新部署时会变，接口数会小幅波动）
 - 鉴权：CAS SSO；未登录时 `/api/*` 统一返回 `code:1000 / message:"请刷新！"`
 - **鉴权过滤器前置于路由**：不存在的接口与真实接口返回同一信封，未登录无法靠探测枚举

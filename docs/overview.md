@@ -15,7 +15,7 @@
 | 未登录统一返回 | `{"ifLogin":false,"status":false,"message":"请刷新！","code":1000,"content":null,"ifAdmin":false}` |
 | 鉴权 | CAS SSO（`login.yungu.org`）；未登录时全站静态资源 **302 → CAS 登录** |
 | 接口总数 | **1345** 个（跨 12 个服务前缀），按功能域归为 **19** 类 |
-| 方法可判定率 | **94%**（GET 889 / POST 367 / PUT 3 / 未知 76）；只读 955 / 写操作 380 |
+| 方法可判定率 | **94%**（GET 899 / POST 368 / PUT 3 / 未知 75）；只读 964 / 写操作 381 |
 | 枚举方式 | 读前端 bundle：`cdn-assets.yungu.org/task/<版本>/index.js` + `<id>.async.js`，CDN **无需登录** |
 | 「剩余任务」接口 | **`GET /api/getAllTasks`**（`inCludeTaskStatus=0`）＋ 计数 `GET /api/taskPublish/getTaskCountForStudent` |
 | 「课表」接口 | **`GET /calendar/api/personal/schdedule/templateForPc`**（前缀 `/calendar/api/`，见 §2.4） |

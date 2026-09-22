@@ -233,6 +233,7 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf
 | `--file <路径>` | 要上传的成果文件，可重复 |
 | `--yes` | 真的发送。**缺省只 dry-run** |
 | `--only-new` | 只带本次文件，不合并历史已上传附件（默认会合并，与应用行为一致） |
+| `--drop-file <fileId>` | 从 `fileList` 剔除某个已交附件（可重复）——「删除」= 新版本不再包含它，旧版本仍在历史里 |
 | `--text-status N` | `textStatus`，实测有附件提交时为 `0` |
 | `--resubmit` | 允许对已交/已确认的任务重交（会新建成果版本） |
 | `--skip-confirm` | 跳过交互二次确认（不建议） |
@@ -453,7 +454,7 @@ DERIVED_STATUS      = {...}   # (id, 是否逾期) -> 六态标签
 | `docs/api-tasks.md` | 任务接口契约（参数、49 字段、状态口径、**评论接口**、解析代码） |
 | `docs/api-schedule.md` | 日程/课表接口契约（时间窗算法、65 字段、解析代码） |
 | `docs/api-submit.md` | **提交成果接口契约**（上传→提交→回读，含撤回边界） |
-| `yungu_api_catalog.md` | 1335 个接口全量目录（标注方法与写操作） |
+| `yungu_api_catalog.md` | 1345 个接口全量目录（标注方法与写操作） |
 | `docs/api-taxonomy.md` | 接口功能分类：19 个功能域各能干什么 |
 | `docs/recon-method.md` | API 侦察方法：静态提取 + 动态 hook 的完整配方 |
 | `README-yungu.md` | 项目总览：侦察过程、发现、注意事项 |
