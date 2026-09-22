@@ -586,6 +586,7 @@ UPLOAD_ENDPOINT = "/api/upload_file/new"
 SUBMIT_ENDPOINT = "/api/submitAchievementSendMessage"
 OSS_BUCKET = "yungu-common"
 # achievementStatus 实测取值：1=未交 3=待修改 4=已交 2=教师已确认
+# 默认只允许这两种状态；已交/已确认要重交需显式 --resubmit（实测服务器并不拦，是本脚本的安全默认）
 SUBMITTABLE = (1, 3)
 
 
@@ -598,9 +599,17 @@ def _oss_credentials(cookie):
 
 
 def _oss_put(oss, key, data, mime, timeout=90):
-    """把字节直传 OSS（阿里云 V1 签名，HMAC-SHA1，纯标准库）。返回 (状态码, ETag, 错误)。"""
+    """把字节直传 OSS（阿里云 V1 签名，HMAC-SHA1，纯标准库）。返回 (状态码, ETag, 错误)。
+
+    注意 key 里常含空格/中文（学生的真实文件名），这两处编码**不一样**（实测确认）：
+      - 请求路径：必须百分号编码
+      - 签名的 CanonicalizedResource：必须用**未编码**的原始 key
+    写错任一处都会失败：路径不编码 → control character 报错；
+    签名里编码 → SignatureDoesNotMatch。
+    """
     endpoint = oss["endpoint"].replace("https://", "").replace("http://", "").strip("/")
-    url = "https://%s.%s/%s" % (oss["bucketName"], endpoint, key)
+    enc_key = urllib.parse.quote(key, safe="/")
+    url = "https://%s.%s/%s" % (oss["bucketName"], endpoint, enc_key)
     date = email.utils.formatdate(usegmt=True)
     md5 = base64.b64encode(hashlib.md5(data).digest()).decode()
     canon_headers = "x-oss-security-token:%s\n" % oss["stsToken"]
@@ -705,10 +714,14 @@ def cmd_submit(args):
     print("任务：%s  (taskPublishId=%s)" % (c.get("taskTitle"), c.get("taskPublishId")))
     print("  courseId=%s  taskUserRelationId=%s  当前 achievementStatus=%s  要求附件=%s"
           % (c.get("courseId"), c.get("taskUserRelationId"), st_now, c.get("needEnclosure")))
-    if st_now not in SUBMITTABLE:
-        print("\n!! 当前状态 %s 不可提交（已交或教师已确认）。" % st_now)
-        print("   重交需教师「退回修改」把状态打回 3。脚本不会替你绕过这个限制。")
+    if st_now not in SUBMITTABLE and not args.resubmit:
+        print("\n!! 当前状态 %s 已交/已确认。" % st_now)
+        print("   实测：平台**允许随时重交**（不看状态、也不需要教师退回），")
+        print("   但每次都会新建一个成果版本（achievementId 变化），教师看到的是最新版本。")
+        print("   脚本默认不动已交的成果；确实要重交请加 --resubmit。")
         return 2
+    if st_now not in SUBMITTABLE:
+        print("   ⚠️ --resubmit：当前状态 %s，提交将生成新的成果版本。" % st_now)
     if c.get("needEnclosure") and not args.file:
         print("\n!! 该任务要求附件（needEnclosure=true），但没给 --file。")
         return 2
@@ -756,11 +769,11 @@ def cmd_submit(args):
     if args.text:
         print("  注意：--text 暂不参与提交。纯文字提交的 textStatus 取值未实测，不做猜测。")
     if not args.yes:
-        print("\n[dry-run] 未发送。加 --yes 才会真的提交；提交后学生侧无法自助撤回。")
+        print("\n[dry-run] 未发送。加 --yes 才会真的提交。重交会新建版本，且无法自助删除旧版本。")
         return 0
 
     if not args.skip_confirm:
-        print("\n⚠️  学生侧没有自助撤回接口，提交后只能请教师「退回修改」。")
+        print("\n⚠️  提交不可自助撤回（无法把自己改回「未交」）；重交只会新建版本。")
         if input("   确认提交？输入 yes 继续：").strip().lower() != "yes":
             print("   已取消，未发送任何请求。")
             return 0
@@ -929,6 +942,8 @@ def main():
                     help="submit 用：textStatus，实测有附件提交时为 0")
     ap.add_argument("--yes", action="store_true",
                     help="submit 用：真的发送（缺省只 dry-run 打印请求）")
+    ap.add_argument("--resubmit", action="store_true",
+                    help="submit 用：允许对已交/已确认的任务重交（会新建成果版本）")
     ap.add_argument("--skip-confirm", action="store_true",
                     help="submit 用：跳过交互式二次确认（配合 --yes；不建议）")
     ap.add_argument("--teacher-only", action="store_true",
