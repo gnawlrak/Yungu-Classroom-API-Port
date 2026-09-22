@@ -488,6 +488,16 @@ def cmd_timetable(args):
 
 # 任务详情（含评论）。注意：GET 会返回 1008，**必须 POST + body**
 ACHIEVEMENT_ENDPOINT = "/api/student/getAchievementDetail"
+MIXED_DETAIL_ENDPOINT = "/api/getMixedPublishDetail"
+
+
+def fetch_task_meta(cookie, task_publish_id):
+    """取任务元信息（课程/标题/教师/附件，不含评论）。返回 (content, 错误说明)。"""
+    pl, note, st, text = call(MIXED_DETAIL_ENDPOINT, cookie,
+                              params={"taskPublishId": int(task_publish_id)})
+    if not (pl and pl.get("status") is True and pl.get("content") is not None):
+        return None, note
+    return pl["content"], None
 
 
 def fetch_achievement(cookie, task_publish_id):
@@ -691,6 +701,31 @@ def upload_file(path, cookie, verify=True):
     return fid, msg
 
 
+def cmd_task(args):
+    """只读：一条任务的元信息 + 我的成果 + 评论，输出 JSON 供上层消费。
+
+    没有写操作，也不上传任何文件。--task 必填（taskPublishId）。
+    """
+    if not session_required(args):
+        return 2
+    if not args.task:
+        print("需要 --task <taskPublishId>", file=sys.stderr)
+        return 2
+    tid = str(args.task).split(",")[0].strip()
+    meta, err_meta = fetch_task_meta(args.cookie, tid)
+    ach, err_ach = fetch_achievement(args.cookie, tid)
+    if meta is None and ach is None:
+        print("读取失败：%s" % (err_meta or err_ach or "未知错误"), file=sys.stderr)
+        return 1
+    print(json.dumps({
+        "taskPublishId": tid,
+        "meta": meta,
+        "achievement": ach,
+        "errors": [e for e in (err_meta, err_ach) if e],
+    }, ensure_ascii=False, indent=2, default=str))
+    return 0
+
+
 def cmd_submit(args):
     """提交任务成果。默认 dry-run 只打印请求，必须 --yes 才真的写。"""
     if not session_required(args):
@@ -750,6 +785,17 @@ def cmd_submit(args):
     existing = [f.get("fileId") for f in (c.get("fileModelList") or []) if f.get("fileId")]
     payload_files = file_ids if args.only_new else list(dict.fromkeys(existing + file_ids))
 
+    # 剔除要删掉的旧文件（重交时"删除"= 新版本不再包含该 fileId）
+    dropped = set(args.drop_file or [])
+    if dropped:
+        before = len(payload_files)
+        payload_files = [fid for fid in payload_files if fid not in dropped]
+        print("  （--drop-file：从 fileList 剔除 %d 个 已交文件，%d → %d）"
+              % (len(dropped & set(existing)), before, len(payload_files)))
+    if not payload_files:
+        print("\n!! 剔除后 fileList 为空：该任务需要附件，交空成果没有意义。已中止。")
+        return 2
+
     payload = {"courseId": c.get("courseId"), "fileList": payload_files,
                "studentIds": [me], "teamList": None,
                "taskPublishId": c.get("taskPublishId"),
@@ -765,11 +811,13 @@ def cmd_submit(args):
     print("\n将发送：POST %s" % SUBMIT_ENDPOINT)
     print("  " + json.dumps(payload, ensure_ascii=False))
     if args.only_new:
-        print("  （--only-new：不带之前已上传的附件 %s）" % (existing or "无"))
+        print("  （--only-new：不带当前成果里已绑定的文件 %s）" % (existing or "无"))
+    if args.drop_file:
+        print("  （--drop-file：剔除 %s）" % (args.drop_file,))
     if args.text:
         print("  注意：--text 暂不参与提交。纯文字提交的 textStatus 取值未实测，不做猜测。")
     if not args.yes:
-        print("\n[dry-run] 未发送。加 --yes 才会真的提交。重交会新建版本，且无法自助删除旧版本。")
+        print("\n[dry-run] 未发送。加 --yes 才会真的提交。重交会新建成果版本（旧版本仍在历史里）；想让新版本不再包含某个已交文件，用 --drop-file <fileId>。")
         return 0
 
     if not args.skip_confirm:
@@ -924,7 +972,7 @@ def resolve_cookie(args):
 
 def main():
     ap = argparse.ArgumentParser(description="task.yungu.org 剩余任务 / 课表读取与接口侦察")
-    ap.add_argument("command", choices=["tasks", "timetable", "comments", "submit", "probe", "recon"])
+    ap.add_argument("command", choices=["tasks", "task", "timetable", "comments", "submit", "probe", "recon"])
     ap.add_argument("--cookie", help="Cookie 请求头，原样粘贴")
     ap.add_argument("--cookie-file", help="存放 Cookie 请求头的文件")
     ap.add_argument("--status", default="0",
@@ -937,7 +985,10 @@ def main():
                     help="submit 用：要上传的成果文件，可重复")
     ap.add_argument("--text", help="submit 用：预留的文字成果（当前仅记录，不参与提交）")
     ap.add_argument("--only-new", action="store_true",
-                    help="submit 用：不带之前已上传但未提交的附件（默认会合并，与应用行为一致）")
+                    help="submit 用：不带当前成果里已绑定的文件（默认会合并它们）")
+    ap.add_argument("--drop-file", action="append", type=int, metavar="FILEID",
+                    help="submit 用：从本次提交的 fileList 里剔除该 fileId（可重复）。"
+                         "用于重交时去掉旧的已交文件 —— 新版本不再包含它")
     ap.add_argument("--text-status", type=int, default=0,
                     help="submit 用：textStatus，实测有附件提交时为 0")
     ap.add_argument("--yes", action="store_true",
@@ -969,8 +1020,9 @@ def main():
     ap.add_argument("--verbose", action="store_true", help="打印更多字段")
     args = ap.parse_args()
     args.cookie = resolve_cookie(args)
-    return {"tasks": cmd_tasks, "timetable": cmd_timetable, "comments": cmd_comments,
-            "submit": cmd_submit, "probe": cmd_probe, "recon": cmd_recon}[args.command](args)
+    return {"tasks": cmd_tasks, "task": cmd_task, "timetable": cmd_timetable,
+            "comments": cmd_comments, "submit": cmd_submit, "probe": cmd_probe,
+            "recon": cmd_recon}[args.command](args)
 
 
 if __name__ == "__main__":
