@@ -34,13 +34,13 @@ python3 yungu_tasks.py timetable    # 看本周课表
 | `tasks` | 读「剩余任务」列表 + 计数 | 是（2 个只读接口） |
 | `timetable` | 读「课表」（周视图） | 是（2 个只读接口） |
 | `comments` | 读**任务评论**（含教师点评），标明归属任务 | 是（每任务 1 个只读接口） |
-| `submit` | **上传成果并提交任务** | 默认不发；`--yes` 才写（需校方授权） |
+| `submit` | **上传成果并提交任务** | 默认不发；`--yes` 才写 |
 | `probe` | 探测候选接口的 `code`/`message`/登录态 | 是（只读） |
 | `recon` | 枚举全站对外开放的 `/api/` 接口 | 是（只读，下载前端 bundle） |
 
 > 除 `submit` 外，脚本只发只读查询（GET / 空 body 的查询类 POST）。
 > `submit` **默认 dry-run 一个字节都不发**，必须 `--yes` 才会真的写入；
-> 它是本项目唯一的写操作入口，**使用前需确认持有校方授权**，契约见 `docs/api-submit.md`。
+> 它是本项目唯一的写操作入口，契约见 `docs/api-submit.md`。
 
 ---
 

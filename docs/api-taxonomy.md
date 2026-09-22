@@ -529,5 +529,5 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 1. **路径语义分类**，不代表接口真实行为。
 2. **参数与响应未逐个验证** —— 只有 `docs/api-tasks.md` / `docs/api-schedule.md` 里的接口是逐字段核对过的。
 3. **权限未逐个测**。只有上表 ★ 的 13 个确认学生账号可调；其余多为教师端/管理端。
-4. **写操作仅实现了一个**：`/api/submitAchievementSendMessage`（学生提交成果），默认 dry-run、需 `--yes`、需校方授权。
+4. **写操作仅实现了一个**：`/api/submitAchievementSendMessage`（学生提交成果），默认 dry-run、需 `--yes`。
    其余 381 个写接口脚本一律不调用。

@@ -4,7 +4,7 @@
 yungu_tasks.py — task.yungu.org 任务/课表/评论读取、接口侦察，以及（可选的）成果提交
 
 读取类操作只访问**你自己账号**的数据；不含任何鉴权绕过。
-提交类操作（submit）**默认不发送任何请求**，且需校方授权 —— 详见 docs/api-submit.md。
+提交类操作（submit）**默认不发送任何请求**，需 `--yes` 才真的写 —— 详见 docs/api-submit.md。
 
 六个子命令
   tasks     读取并打印「剩余任务」（默认 inCludeTaskStatus=0，即未完成）
@@ -38,7 +38,7 @@ yungu_tasks.py — task.yungu.org 任务/课表/评论读取、接口侦察，�
   python3 yungu_tasks.py comments                      # 剩余任务的评论
   python3 yungu_tasks.py comments --teacher-only       # 只看老师/他人发的
   python3 yungu_tasks.py submit --task 91958 --file hw.pdf          # dry-run，不发
-  python3 yungu_tasks.py submit --task 91958 --file hw.pdf --yes    # 真的提交（需授权）
+  python3 yungu_tasks.py submit --task 91958 --file hw.pdf --yes    # 真的提交（需 --yes）
   python3 yungu_tasks.py probe                       # 各候选接口返回一览
   python3 yungu_tasks.py recon --bundle-url https://cdn-assets.yungu.org/task/<版本>/index.js
 
@@ -533,7 +533,7 @@ def cmd_comments(args):
     payload = []
     requests_made = 0
     for group, t in targets:
-        # 限流：每个任务一次请求，达到上限即停（对应 README 免责声明第 6 条）
+        # 限流：每个任务一次请求，达到上限即停（对应 docs/script.md 的 --sleep / --max-requests）
         if requests_made >= args.max_requests:
             print("\n!! 已达请求上限 %d（--max-requests 可调），停止扫描。" % args.max_requests)
             break
