@@ -387,7 +387,7 @@ DERIVED_STATUS      = {...}   # (id, 是否逾期) -> 六态标签
 |---|---|
 | `docs/api-tasks.md` | 任务接口契约（参数、49 字段、状态口径、**评论接口**、解析代码） |
 | `docs/api-schedule.md` | 日程/课表接口契约（时间窗算法、65 字段、解析代码） |
-| `yungu_api_catalog.md` | 1335 个接口全量目录（标注方法与写操作） |
+| `yungu_api_catalog.md` | 1345 个接口全量目录（标注方法与写操作） |
 | `docs/api-taxonomy.md` | 接口功能分类：19 个功能域各能干什么 |
 | `docs/recon-method.md` | API 侦察方法：静态提取 + 动态 hook 的完整配方 |
 | `README-yungu.md` | 项目总览：侦察过程、发现、注意事项 |

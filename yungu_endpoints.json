@@ -1,11 +1,11 @@
 {
-  "source": "cdn-assets.yungu.org/task/20260916175936/（主包 + 716 个 chunk）",
-  "revision_note": "v4：补全声明但未下载的 377 个 chunk（v3 只覆盖 id 1..340，漏 chunk）",
+  "source": "https://cdn-assets.yungu.org/task/20260922090917/index.js",
+  "revision_note": "数字随站点重新部署小幅波动",
   "limitations": [
-    "只收录 bundle 里的**字面量**路径；动态拼接的路径抓不到（如 /api/student/getAchievementDetail 仅 /api/teacher/getAchievementDetail 是字面量）",
-    "日程子应用（newSchoolCalendar）使用独立 bundle，不在这套 chunk 内（如 /calendar/api/personal/schdedule/templateForPc 不在本目录中）"
+    "只收录字面量路径：动态拼接的抓不到（如 /api/student/getAchievementDetail）",
+    "独立 bundle 的子应用不在内（如课表 /calendar/api/...）"
   ],
-  "count": 1335,
+  "count": 1345,
   "endpoints": [
     "/agent-max/api/public/assistants/by-school/",
     "/agent-max/api/public/pagelab/tools",
@@ -179,6 +179,7 @@
     "/api/elementResult/getLock",
     "/api/elementResult/releaseLock",
     "/api/endTaskPublish",
+    "/api/enrolmentPlan",
     "/api/enrolmentPlan/acl",
     "/api/enrolmentPlan/alreadyStages",
     "/api/enrolmentPlan/alumnusList",
@@ -569,9 +570,7 @@
     "/api/login/account",
     "/api/messageCenter/count",
     "/api/messageCenter/page",
-    "/api/messageCenter/pageAll",
     "/api/messageCenter/read",
-    "/api/messageCenter/readAll",
     "/api/mock/changeAccount",
     "/api/model/list",
     "/api/moralEduStatistics/CIOMetric",
@@ -588,6 +587,7 @@
     "/api/newGetStageAndSubject",
     "/api/new_download_file",
     "/api/notices",
+    "/api/openLesson",
     "/api/openLesson/exportList",
     "/api/openLesson/getUserByCourseId",
     "/api/openLesson/listLessonOpenClassification",
@@ -680,6 +680,7 @@
     "/api/public/assistants/by-school/",
     "/api/punctualitySubmissionRateOfCourse",
     "/api/punctualitySubmissionRateOfSemester",
+    "/api/qualityLesson",
     "/api/qualityLesson/addReflectionOrRecord",
     "/api/queryEdit",
     "/api/question/knowledge/importByStageAndSubject",
@@ -723,6 +724,7 @@
     "/api/selectStudentByCaptureId",
     "/api/set_language",
     "/api/stage/list",
+    "/api/standardizedTest",
     "/api/standardizedTest/academicOverview",
     "/api/standardizedTest/courseScore",
     "/api/standardizedTest/deleteById",
@@ -753,6 +755,7 @@
     "/api/student/daily/updateStudentDailyInfo",
     "/api/student/detail",
     "/api/student/listUnitUnderPageHome",
+    "/api/studentBehavior/analysis/export",
     "/api/studentHomeworkCourseStatistics",
     "/api/studentHomeworkCourses",
     "/api/studentInfoAndCourseScore",
@@ -775,8 +778,6 @@
     "/api/taskPublish/findIndicatorTree",
     "/api/taskPublish/getIndicatorTreeByTaskId",
     "/api/taskPublish/getTaskCountForStudent",
-    "/api/taskRateSettings",
-    "/api/taskRateSettings/permission",
     "/api/taskSubmissionRateGroupByCourse",
     "/api/teach/bind/indicator",
     "/api/teach/bind/unit/indicator",
@@ -873,19 +874,27 @@
     "/api/user/relation/grayFeatures",
     "/api/user/relation/ifDirectorOfTeachingOrSubjectChief",
     "/api/user/relation/lessonDetail",
+    "/api/user/relation/lessonDetailMatch",
     "/api/user/relation/lessonDetailResolve",
+    "/api/user/relation/lessonEvaluation",
     "/api/user/relation/lessonEvaluation/bindTemplate",
     "/api/user/relation/lessonEvaluation/context",
     "/api/user/relation/lessonEvaluation/mySubmission",
+    "/api/user/relation/lessonEvaluation/reportExportData",
     "/api/user/relation/lessonEvaluation/resultDetails",
     "/api/user/relation/lessonEvaluation/resultOverview",
     "/api/user/relation/lessonEvaluation/saveDraft",
     "/api/user/relation/lessonEvaluation/submit",
     "/api/user/relation/lessonEvaluation/templateOptions",
     "/api/user/relation/lessonEvaluation/templateOverview",
+    "/api/user/relation/lessonEvaluation/templatePreview",
     "/api/user/relation/lessonEvaluation/updateVisibility",
+    "/api/user/relation/lessonEvaluationTemplate",
     "/api/user/relation/lessonEvaluationTemplate/delete",
     "/api/user/relation/lessonEvaluationTemplate/detail",
+    "/api/user/relation/lessonEvaluationTemplate/editorDetail",
+    "/api/user/relation/lessonEvaluationTemplate/identityVisibility",
+    "/api/user/relation/lessonEvaluationTemplate/identityVisibilityCapability",
     "/api/user/relation/lessonEvaluationTemplate/import",
     "/api/user/relation/lessonEvaluationTemplate/import/confirm",
     "/api/user/relation/lessonEvaluationTemplate/import/detail",
@@ -893,6 +902,8 @@
     "/api/user/relation/lessonEvaluationTemplate/parseDocx",
     "/api/user/relation/lessonEvaluationTemplate/permission",
     "/api/user/relation/lessonEvaluationTemplate/save",
+    "/api/user/relation/lessonEvaluationTemplate/saveText",
+    "/api/user/relation/lessonEvaluationTemplate/scoreVisibility",
     "/api/user/relation/lessonEvaluationTemplate/status",
     "/api/user/relation/lessonList",
     "/api/user/relation/lessonListPdfExport",
@@ -911,6 +922,7 @@
     "/api/user/relation/recordListExport",
     "/api/user/relation/semesterStatistics",
     "/api/user/relation/stagePermission",
+    "/api/user/relation/teacherAnalysis",
     "/api/user/relation/teacherAnalysis/detail",
     "/api/user/relation/teacherAnalysis/export",
     "/api/user/relation/teacherAnalysis/filterOptions",
@@ -929,6 +941,7 @@
     "/api/users/taskPublish/status",
     "/calendar/api/batchUpdateStudentAttendanceDetail",
     "/calendar/api/behaviorEntry/indicators",
+    "/calendar/api/behaviorRecord",
     "/calendar/api/behaviorRecord/aiAssistant",
     "/calendar/api/behaviorRecord/allStu/behavior/download/template",
     "/calendar/api/behaviorRecord/allStu/behavior/downloadFailData",
@@ -967,9 +980,11 @@
     "/calendar/api/behaviorType/list",
     "/calendar/api/checkAttendanceSetting",
     "/calendar/api/checkCCA",
+    "/calendar/api/classBehavior",
     "/calendar/api/classBehavior/report/",
     "/calendar/api/classBehavior/report/export/jobs/",
     "/calendar/api/classBehavior/report/export/v2/jobs",
+    "/calendar/api/classBehaviorRecord",
     "/calendar/api/classBehaviorRecord/allStu/behavior",
     "/calendar/api/classBehaviorRecord/allStu/behavior/export",
     "/calendar/api/classBehaviorRecord/approval/detail",
@@ -1064,6 +1079,7 @@
     "/calendar/api/query/currentCourseClassAttendanceEvents",
     "/calendar/api/query/listAttendanceStudent",
     "/calendar/api/query/statusStatistic",
+    "/calendar/api/rank",
     "/calendar/api/rank/getLastUploadFieldUrl",
     "/calendar/api/rank/getSchoolConfig",
     "/calendar/api/rank/listRelatedBehavior",
@@ -1077,6 +1093,7 @@
     "/calendar/api/setStudentDormStatus",
     "/calendar/api/showAttendanceSetting",
     "/calendar/api/stageSummary",
+    "/calendar/api/statistics",
     "/calendar/api/statistics/allStu/behavior",
     "/calendar/api/statistics/allStu/behavior/export",
     "/calendar/api/statistics/behavior",
@@ -1123,6 +1140,7 @@
     "/calendar/api/statistics/group/behaviorAnalyze",
     "/calendar/api/statistics/group/chiefTutor",
     "/calendar/api/statistics/group/dayAnalyze",
+    "/calendar/api/statistics/group/student/count",
     "/calendar/api/statistics/isShowCourseStatistics",
     "/calendar/api/statistics/leaveStatistics",
     "/calendar/api/statistics/leaveStatisticsSwitch",
@@ -1158,7 +1176,9 @@
     "/calendar/api/stu/detail/analyzeJSONExplain",
     "/calendar/api/stuDayAnalyze",
     "/calendar/api/stuDayExportCode",
+    "/calendar/api/studentBehavior",
     "/calendar/api/studentBehavior/analysis/",
+    "/calendar/api/studentManagement",
     "/calendar/api/studentManagement/dorms",
     "/calendar/api/studentManagement/grade",
     "/calendar/api/studentManagement/group",
@@ -1175,17 +1195,9 @@
     "/center/api/file-services/getFileAnalysisResult",
     "/center/api/file-services/getJsonPdfTask",
     "/center/api/general/translate",
-    "/course/api/addGroup",
     "/course/api/choose/batchStudent/roster/list",
     "/course/api/choose/batchStudent/roster/list/export",
-    "/course/api/chooseByRole",
-    "/course/api/chooseBySubject",
-    "/course/api/course/subject",
     "/course/api/listAllOrgTeachers",
-    "/course/api/listAllTeachers",
-    "/course/api/listAllTeachersWithDept",
-    "/course/api/listGroupDetail",
-    "/course/api/listMyGroup",
     "/course/api/role/baseTag/roleList",
     "/course/api/school/getAttendance",
     "/course/api/school/getEnteringLeavingSetting",
@@ -1202,9 +1214,7 @@
     "/course/api/student/roster/listGroupByTag",
     "/course/api/student/roster/listStageGradeGroup",
     "/course/api/student/roster/listStu",
-    "/course/api/teaching/allGrade",
     "/course/api/teaching/listUserAclConfig",
-    "/course/api/updateGroup",
     "/course/api/user/searchTeacher",
     "/evaluation/api/addOrUpdateCourseEstimatedScore",
     "/evaluation/api/addOrUpdateCourseGpa",
@@ -1255,6 +1265,7 @@
     "/evaluation/api/getLockScoreTemplate",
     "/evaluation/api/gpaSettingPermission",
     "/evaluation/api/growthAim/aimFootprintStudent",
+    "/evaluation/api/habit",
     "/evaluation/api/habit/deletedHabitGradeExtends",
     "/evaluation/api/habit/listHabitTree",
     "/evaluation/api/habit/saveHabitGradeExtends",
@@ -1339,7 +1350,6 @@
     "/leave/api/leaveFlow/config/publish",
     "/leave/api/leaveFlow/config/saveDraft",
     "/leave/api/leaveFlow/config/simulate",
-    "/message/api/messageCenter/v2/page",
     "/task/api/current/user/identity",
     "/work/api/index/getTeacher"
   ],
@@ -2890,6 +2900,15 @@
       "service": "/api",
       "module": "endTaskPublish",
       "category": "任务与作业",
+      "mutating": false
+    },
+    {
+      "path": "/api/enrolmentPlan",
+      "method": "GET",
+      "style": "",
+      "service": "/api",
+      "module": "enrolmentPlan",
+      "category": "升学与招生",
       "mutating": false
     },
     {
@@ -6403,26 +6422,8 @@
       "mutating": false
     },
     {
-      "path": "/api/messageCenter/pageAll",
-      "method": "未知",
-      "style": "",
-      "service": "/api",
-      "module": "messageCenter",
-      "category": "消息与通知",
-      "mutating": false
-    },
-    {
       "path": "/api/messageCenter/read",
       "method": "POST",
-      "style": "",
-      "service": "/api",
-      "module": "messageCenter",
-      "category": "阅读",
-      "mutating": false
-    },
-    {
-      "path": "/api/messageCenter/readAll",
-      "method": "GET",
       "style": "",
       "service": "/api",
       "module": "messageCenter",
@@ -6571,6 +6572,15 @@
       "service": "/api",
       "module": "notices",
       "category": "消息与通知",
+      "mutating": false
+    },
+    {
+      "path": "/api/openLesson",
+      "method": "GET",
+      "style": "",
+      "service": "/api",
+      "module": "openLesson",
+      "category": "课程与教学",
       "mutating": false
     },
     {
@@ -7402,6 +7412,15 @@
       "mutating": false
     },
     {
+      "path": "/api/qualityLesson",
+      "method": "GET",
+      "style": "",
+      "service": "/api",
+      "module": "qualityLesson",
+      "category": "课程与教学",
+      "mutating": false
+    },
+    {
       "path": "/api/qualityLesson/addReflectionOrRecord",
       "method": "POST",
       "style": "",
@@ -7789,6 +7808,15 @@
       "mutating": false
     },
     {
+      "path": "/api/standardizedTest",
+      "method": "未知",
+      "style": "",
+      "service": "/api",
+      "module": "standardizedTest",
+      "category": "评价与素养成绩",
+      "mutating": false
+    },
+    {
       "path": "/api/standardizedTest/academicOverview",
       "method": "GET",
       "style": "querystring",
@@ -8059,6 +8087,15 @@
       "mutating": false
     },
     {
+      "path": "/api/studentBehavior/analysis/export",
+      "method": "未知",
+      "style": "",
+      "service": "/api",
+      "module": "studentBehavior",
+      "category": "学生行为与德育",
+      "mutating": true
+    },
+    {
       "path": "/api/studentHomeworkCourseStatistics",
       "method": "GET",
       "style": "querystring",
@@ -8253,24 +8290,6 @@
       "style": "querystring",
       "service": "/api",
       "module": "taskPublish",
-      "category": "任务与作业",
-      "mutating": false
-    },
-    {
-      "path": "/api/taskRateSettings",
-      "method": "POST",
-      "style": "",
-      "service": "/api",
-      "module": "taskRateSettings",
-      "category": "任务与作业",
-      "mutating": false
-    },
-    {
-      "path": "/api/taskRateSettings/permission",
-      "method": "GET",
-      "style": "",
-      "service": "/api",
-      "module": "taskRateSettings",
       "category": "任务与作业",
       "mutating": false
     },
@@ -9139,12 +9158,30 @@
       "mutating": false
     },
     {
+      "path": "/api/user/relation/lessonDetailMatch",
+      "method": "POST",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "课程与教学",
+      "mutating": false
+    },
+    {
       "path": "/api/user/relation/lessonDetailResolve",
       "method": "POST",
       "style": "",
       "service": "/api",
       "module": "user",
       "category": "课程与教学",
+      "mutating": false
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluation",
+      "method": "GET",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
       "mutating": false
     },
     {
@@ -9167,6 +9204,15 @@
     },
     {
       "path": "/api/user/relation/lessonEvaluation/mySubmission",
+      "method": "GET",
+      "style": "querystring",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": false
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluation/reportExportData",
       "method": "GET",
       "style": "querystring",
       "service": "/api",
@@ -9229,6 +9275,15 @@
       "mutating": false
     },
     {
+      "path": "/api/user/relation/lessonEvaluation/templatePreview",
+      "method": "GET",
+      "style": "querystring",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": false
+    },
+    {
       "path": "/api/user/relation/lessonEvaluation/updateVisibility",
       "method": "POST",
       "style": "",
@@ -9236,6 +9291,15 @@
       "module": "user",
       "category": "评价与素养成绩",
       "mutating": true
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluationTemplate",
+      "method": "GET",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": false
     },
     {
       "path": "/api/user/relation/lessonEvaluationTemplate/delete",
@@ -9249,6 +9313,33 @@
     {
       "path": "/api/user/relation/lessonEvaluationTemplate/detail",
       "method": "未知",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": false
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluationTemplate/editorDetail",
+      "method": "未知",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": true
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluationTemplate/identityVisibility",
+      "method": "POST",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": false
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluationTemplate/identityVisibilityCapability",
+      "method": "GET",
       "style": "",
       "service": "/api",
       "module": "user",
@@ -9317,6 +9408,24 @@
       "module": "user",
       "category": "评价与素养成绩",
       "mutating": true
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluationTemplate/saveText",
+      "method": "POST",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": true
+    },
+    {
+      "path": "/api/user/relation/lessonEvaluationTemplate/scoreVisibility",
+      "method": "POST",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "评价与素养成绩",
+      "mutating": false
     },
     {
       "path": "/api/user/relation/lessonEvaluationTemplate/status",
@@ -9481,6 +9590,15 @@
       "mutating": false
     },
     {
+      "path": "/api/user/relation/teacherAnalysis",
+      "method": "GET",
+      "style": "",
+      "service": "/api",
+      "module": "user",
+      "category": "课程与教学",
+      "mutating": false
+    },
+    {
       "path": "/api/user/relation/teacherAnalysis/detail",
       "method": "POST",
       "style": "",
@@ -9590,7 +9708,7 @@
     },
     {
       "path": "/api/user/relation/updateTaskUserRelationLesson",
-      "method": "POST",
+      "method": "GET",
       "style": "",
       "service": "/api",
       "module": "user",
@@ -9640,6 +9758,15 @@
       "service": "/calendar/api",
       "module": "behaviorEntry",
       "category": "评价与素养成绩",
+      "mutating": false
+    },
+    {
+      "path": "/calendar/api/behaviorRecord",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "behaviorRecord",
+      "category": "学生行为与德育",
       "mutating": false
     },
     {
@@ -9985,6 +10112,15 @@
       "mutating": false
     },
     {
+      "path": "/calendar/api/classBehavior",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "classBehavior",
+      "category": "学生行为与德育",
+      "mutating": false
+    },
+    {
       "path": "/calendar/api/classBehavior/report/",
       "method": "未知",
       "style": "",
@@ -10010,6 +10146,15 @@
       "module": "classBehavior",
       "category": "学生行为与德育",
       "mutating": true
+    },
+    {
+      "path": "/calendar/api/classBehaviorRecord",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "classBehaviorRecord",
+      "category": "学生行为与德育",
+      "mutating": false
     },
     {
       "path": "/calendar/api/classBehaviorRecord/allStu/behavior",
@@ -10283,7 +10428,7 @@
     },
     {
       "path": "/calendar/api/newBehaviorRecord",
-      "method": "未知",
+      "method": "GET",
       "style": "",
       "service": "/calendar/api",
       "module": "newBehaviorRecord",
@@ -10858,6 +11003,15 @@
       "mutating": false
     },
     {
+      "path": "/calendar/api/rank",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "rank",
+      "category": "其他",
+      "mutating": false
+    },
+    {
       "path": "/calendar/api/rank/getLastUploadFieldUrl",
       "method": "GET",
       "style": "querystring",
@@ -10972,6 +11126,15 @@
       "service": "/calendar/api",
       "module": "stageSummary",
       "category": "家校与反馈",
+      "mutating": false
+    },
+    {
+      "path": "/calendar/api/statistics",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "statistics",
+      "category": "统计与看板",
       "mutating": false
     },
     {
@@ -11389,6 +11552,15 @@
       "mutating": false
     },
     {
+      "path": "/calendar/api/statistics/group/student/count",
+      "method": "POST",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "statistics",
+      "category": "家校与反馈",
+      "mutating": false
+    },
+    {
       "path": "/calendar/api/statistics/isShowCourseStatistics",
       "method": "GET",
       "style": "",
@@ -11704,12 +11876,30 @@
       "mutating": false
     },
     {
+      "path": "/calendar/api/studentBehavior",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "studentBehavior",
+      "category": "学生行为与德育",
+      "mutating": false
+    },
+    {
       "path": "/calendar/api/studentBehavior/analysis/",
       "method": "未知",
       "style": "",
       "service": "/calendar/api",
       "module": "studentBehavior",
       "category": "学生行为与德育",
+      "mutating": false
+    },
+    {
+      "path": "/calendar/api/studentManagement",
+      "method": "GET",
+      "style": "",
+      "service": "/calendar/api",
+      "module": "studentManagement",
+      "category": "用户与权限",
       "mutating": false
     },
     {
@@ -11857,15 +12047,6 @@
       "mutating": false
     },
     {
-      "path": "/course/api/addGroup",
-      "method": "未知",
-      "style": "",
-      "service": "/course/api",
-      "module": "addGroup",
-      "category": "家校与反馈",
-      "mutating": true
-    },
-    {
       "path": "/course/api/choose/batchStudent/roster/list",
       "method": "POST",
       "style": "",
@@ -11884,75 +12065,12 @@
       "mutating": true
     },
     {
-      "path": "/course/api/chooseByRole",
-      "method": "GET",
-      "style": "",
-      "service": "/course/api",
-      "module": "chooseByRole",
-      "category": "用户与权限",
-      "mutating": false
-    },
-    {
-      "path": "/course/api/chooseBySubject",
-      "method": "POST",
-      "style": "",
-      "service": "/course/api",
-      "module": "chooseBySubject",
-      "category": "其他",
-      "mutating": false
-    },
-    {
-      "path": "/course/api/course/subject",
-      "method": "未知",
-      "style": "",
-      "service": "/course/api",
-      "module": "course",
-      "category": "课程与教学",
-      "mutating": false
-    },
-    {
       "path": "/course/api/listAllOrgTeachers",
       "method": "GET",
       "style": "querystring",
       "service": "/course/api",
       "module": "listAllOrgTeachers",
       "category": "课程与教学",
-      "mutating": false
-    },
-    {
-      "path": "/course/api/listAllTeachers",
-      "method": "GET",
-      "style": "",
-      "service": "/course/api",
-      "module": "listAllTeachers",
-      "category": "课程与教学",
-      "mutating": false
-    },
-    {
-      "path": "/course/api/listAllTeachersWithDept",
-      "method": "GET",
-      "style": "",
-      "service": "/course/api",
-      "module": "listAllTeachersWithDept",
-      "category": "课程与教学",
-      "mutating": false
-    },
-    {
-      "path": "/course/api/listGroupDetail",
-      "method": "未知",
-      "style": "",
-      "service": "/course/api",
-      "module": "listGroupDetail",
-      "category": "家校与反馈",
-      "mutating": false
-    },
-    {
-      "path": "/course/api/listMyGroup",
-      "method": "GET",
-      "style": "",
-      "service": "/course/api",
-      "module": "listMyGroup",
-      "category": "家校与反馈",
       "mutating": false
     },
     {
@@ -12100,15 +12218,6 @@
       "mutating": false
     },
     {
-      "path": "/course/api/teaching/allGrade",
-      "method": "GET",
-      "style": "",
-      "service": "/course/api",
-      "module": "teaching",
-      "category": "课程与教学",
-      "mutating": false
-    },
-    {
       "path": "/course/api/teaching/listUserAclConfig",
       "method": "GET",
       "style": "querystring",
@@ -12116,15 +12225,6 @@
       "module": "teaching",
       "category": "课程与教学",
       "mutating": false
-    },
-    {
-      "path": "/course/api/updateGroup",
-      "method": "POST",
-      "style": "",
-      "service": "/course/api",
-      "module": "updateGroup",
-      "category": "家校与反馈",
-      "mutating": true
     },
     {
       "path": "/course/api/user/searchTeacher",
@@ -12574,6 +12674,15 @@
       "service": "/evaluation/api",
       "module": "growthAim",
       "category": "成长目标与档案",
+      "mutating": false
+    },
+    {
+      "path": "/evaluation/api/habit",
+      "method": "未知",
+      "style": "",
+      "service": "/evaluation/api",
+      "module": "habit",
+      "category": "其他",
       "mutating": false
     },
     {
@@ -13330,15 +13439,6 @@
       "service": "/leave/api",
       "module": "leaveFlow",
       "category": "考勤与请假",
-      "mutating": false
-    },
-    {
-      "path": "/message/api/messageCenter/v2/page",
-      "method": "GET",
-      "style": "",
-      "service": "/message/api",
-      "module": "messageCenter",
-      "category": "消息与通知",
       "mutating": false
     },
     {

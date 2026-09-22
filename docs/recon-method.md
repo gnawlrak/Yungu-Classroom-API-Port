@@ -224,8 +224,8 @@ ifLogin === true 不代表调用成功（GET /api/getDraftTasks 就带 ifLogin:t
 | 5 | hash 导航后期望钩子生效 | 钩子装不上 → 0 捕获（见 §2） |
 | 6 | 只读顶层 `window.__req` | iframe 的请求全丢（见 §2） |
 
-**教训：每次得到新数字，都要用另一种方法复核一遍再报。** 本次接口数在
-1265 → 1069 → 1273 → 1335 之间反复修正过，每一次都是复核发现的。
+**教训：每次得到新数字，都要用另一种方法复核一遍再报。** 本次接口数在 1265 → 1069 → 1273 → 1335 → 1345 之间反复修正过，
+每一次都是复核发现的（后期变动还来自站点自身重新部署）。
 
 ---
 
@@ -257,5 +257,5 @@ ifLogin === true 不代表调用成功（GET /api/getDraftTasks 就带 ifLogin:t
 | `docs/script.md` | 脚本用法与内部结构 |
 | `docs/api-tasks.md` | 任务 + 评论接口契约 |
 | `docs/api-schedule.md` | 课表接口契约 |
-| `docs/api-taxonomy.md` | 1335 个接口的功能分类 |
+| `docs/api-taxonomy.md` | 1345 个接口的功能分类 |
 | `yungu_tasks.py` | 可直接沿用的 `call()` / `envelope_state()` |

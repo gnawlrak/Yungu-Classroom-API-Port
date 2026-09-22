@@ -14,7 +14,7 @@
 | 响应信封 | `{status, code, message, content, ifLogin, ifAdmin}` |
 | 未登录统一返回 | `{"ifLogin":false,"status":false,"message":"请刷新！","code":1000,"content":null,"ifAdmin":false}` |
 | 鉴权 | CAS SSO（`login.yungu.org`）；未登录时全站静态资源 **302 → CAS 登录** |
-| 接口总数 | **1335** 个（跨 13 个服务前缀），按功能域归为 **19** 类 |
+| 接口总数 | **1345** 个（跨 12 个服务前缀），按功能域归为 **19** 类 |
 | 方法可判定率 | **94%**（GET 889 / POST 367 / PUT 3 / 未知 76）；只读 955 / 写操作 380 |
 | 枚举方式 | 读前端 bundle：`cdn-assets.yungu.org/task/<版本>/index.js` + `<id>.async.js`，CDN **无需登录** |
 | 「剩余任务」接口 | **`GET /api/getAllTasks`**（`inCludeTaskStatus=0`）＋ 计数 `GET /api/taskPublish/getTaskCountForStudent` |
@@ -286,7 +286,7 @@ python3 yungu_tasks.py recon --bundle-url https://cdn-assets.yungu.org/task/<版
 | `docs/script.md` | **脚本使用文档**：四个子命令、全部选项、退出码、排错、扩展指南 |
 | `docs/api-tasks.md` | **任务接口文档**：如何调用 + 如何解析（真实样例、49 个字段、状态口径、评论接口、可跑代码） |
 | `docs/api-schedule.md` | **日程/课表接口文档**：如何调用 + 如何解析（时间窗算法、65 个字段、可跑代码） |
-| `yungu_api_catalog.md` | 1335 个接口的完整目录（按功能域→模块分组 + 标注方法与写操作） |
+| `yungu_api_catalog.md` | 1345 个接口的完整目录（按功能域→模块分组 + 标注方法与写操作） |
 | `docs/api-taxonomy.md` | **功能分类说明**：19 个功能域各能干什么 + 目录的两个固有缺口 |
 | `docs/recon-method.md` | **API 侦察方法**：静态提取 + 动态 hook 的完整可跑配方（含 6 个踩过的坑） |
 | `yungu_endpoints.json` | 同上机读版（含 method / service / module / mutating 字段） |

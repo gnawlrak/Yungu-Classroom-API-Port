@@ -1,8 +1,9 @@
 # 接口功能分类（task.yungu.org）
 
-> 共 **1335** 条接口，归入 **19** 个功能域；已归类 **1308/1335**。
+> 共 **1345** 条接口，归入 **19** 个功能域；已归类 **1317/1345**。
+> 抓取构建号 `https://cdn-assets.yungu.org/task/20260922090917` —— 站点重新部署后数字会小幅波动，重新抓一次即可。
 > **怎么分的**：按路径语义关键词归类，并**先剥掉服务前缀**再判断
-> （否则 `/calendar/api/` 下的接口会全被误判成「课表」—— 这是第一版的真实错误）。
+> （否则 `/calendar/api/` 下的接口会全被误判成「课表」—— 这是实际踩过的错）。
 > 这是**路径语义分类**，不等于逐个接口都验证过功能。
 
 ## ⚠️ 先看这个：目录不等于全集
@@ -19,22 +20,22 @@
 | 功能域 | 接口数 | 只读 | 写操作 | 这一域能干什么 |
 |---|---:|---:|---:|---|
 | **课程与教学** | 244 | 174 | 70 | 课程、课节(lesson)、单元、章节、知识点、教案、题库试卷、教学资源 |
-| **评价与素养成绩** | 226 | 143 | 83 | 素养指标、评价方案与模板、评分、成绩（GPA/学分）、等级制测验 |
-| **家校与反馈** | 150 | 119 | 31 | 家校互通、周反馈计划、导师/班级分组、学生日常 |
-| **任务与作业** | 140 | 88 | 52 | 作业/任务的发布、列表、提交、批改、草稿箱。学生看到的是「我的任务」 |
-| **学生行为与德育** | 135 | 92 | 43 | 行为记录、徽章、奖惩、班级/宿舍行为统计、早预警 |
-| **升学与招生** | 98 | 84 | 14 | 升学规划：目标校、申请记录、文书模板、专业方向、访校 |
+| **评价与素养成绩** | 236 | 151 | 85 | 素养指标、评价方案与模板、评分、成绩（GPA/学分）、等级制测验 |
+| **家校与反馈** | 147 | 118 | 29 | 家校互通、周反馈计划、导师/班级分组、学生日常 |
+| **学生行为与德育** | 140 | 96 | 44 | 行为记录、徽章、奖惩、班级/宿舍行为统计、早预警 |
+| **任务与作业** | 138 | 86 | 52 | 作业/任务的发布、列表、提交、批改、草稿箱。学生看到的是「我的任务」 |
+| **升学与招生** | 99 | 85 | 14 | 升学规划：目标校、申请记录、文书模板、专业方向、访校 |
 | **用户与权限** | 67 | 60 | 7 | 当前用户与身份、ACL 权限、角色、组织/学部/年级/师生名单 |
-| **统计与看板** | 52 | 42 | 10 | 各类统计报表与看板（出勤/行为/课程/班级/年级/学部） |
+| **统计与看板** | 53 | 43 | 10 | 各类统计报表与看板（出勤/行为/课程/班级/年级/学部） |
 | **课表与日程** | 50 | 39 | 11 | 课表(智能课表)、学期/学年、日程、教学计划、时间机器(按日回看) |
 | **考勤与请假** | 35 | 25 | 10 | 出勤记录与统计、请假流程与配置、进出校设置 |
-| **其他** | 27 | 14 | 13 | 未能按路径语义归类的杂项 |
+| **其他** | 28 | 15 | 13 | 未能按路径语义归类的杂项 |
 | **成长目标与档案** | 27 | 16 | 11 | 成长目标与总结、成长档案、成果墙、高光时刻、活动记录 |
 | **文件与媒体** | 21 | 13 | 8 | 文件上传下载、预览、导出、OSS 直传凭证、照片 |
-| **阅读** | 20 | 16 | 4 | 阅读记录、阅读统计、书目 |
+| **阅读** | 19 | 15 | 4 | 阅读记录、阅读统计、书目 |
 | **AI 功能** | 12 | 8 | 4 | AI 应用/Agent、AI 备课、AI 批改、AI 话题 |
 | **配置与字典** | 12 | 11 | 1 | 全局配置、数据字典、规则、表单、标签 |
-| **消息与通知** | 11 | 9 | 2 | 站内消息、通知、告警、催办 |
+| **消息与通知** | 9 | 7 | 2 | 站内消息、通知、告警、催办 |
 | **互动与点赞** | 6 | 1 | 5 | 点赞、评论、印象互动 |
 | **健康与体育** | 2 | 1 | 1 | 体测数据、健康问卷、周期体检与 AI 建议 |
 
@@ -70,7 +71,7 @@
 
 课程、课节(lesson)、单元、章节、知识点、教案、题库试卷、教学资源
 
-**主要子模块**：`user`(26)　`statistics`(16)　`lesson`(14)　`chapter`(9)　`course`(9)　`get`(7)　`plan`(7)　`bind`(6)
+**主要子模块**：`user`(28)　`statistics`(16)　`lesson`(14)　`chapter`(9)　`course`(8)　`get`(7)　`openLesson`(7)　`plan`(7)
 
 **代表性只读接口**：
 
@@ -92,11 +93,11 @@
 
 ---
 
-## 评价与素养成绩（226 条：只读 143 / 写 83）
+## 评价与素养成绩（236 条：只读 151 / 写 85）
 
 素养指标、评价方案与模板、评分、成绩（GPA/学分）、等级制测验
 
-**主要子模块**：`power`(37)　`evaluation`(26)　`template`(23)　`indicator`(22)　`user`(18)　`standardizedTest`(11)　`achievement`(5)　`gradeManagement`(5)
+**主要子模块**：`power`(37)　`user`(27)　`evaluation`(26)　`template`(23)　`indicator`(22)　`standardizedTest`(12)　`achievement`(5)　`gradeManagement`(5)
 
 **代表性只读接口**：
 
@@ -112,17 +113,17 @@
 - `GET /api/determineReview/studentAssessmentData`
 - `POST /api/elementResult/forcedLock`
 - `POST /api/elementResult/getLock`
-- … 另有 131 个只读接口，见 `yungu_api_catalog.md`
+- … 另有 139 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 83 个（如 `auditStatistics`、`audit_list`、`addGraduationCriteria`、`evaluationPlanDataBoard`、`copyGraduationCriteria`、`deleteGraduationCriteria`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 85 个（如 `auditStatistics`、`audit_list`、`addGraduationCriteria`、`evaluationPlanDataBoard`、`copyGraduationCriteria`、`deleteGraduationCriteria`）—— 本文档与脚本都不会调用它们。
 
 ---
 
-## 家校与反馈（150 条：只读 119 / 写 31）
+## 家校与反馈（147 条：只读 118 / 写 29）
 
 家校互通、周反馈计划、导师/班级分组、学生日常
 
-**主要子模块**：`homeSchool`(33)　`feedback`(26)　`recipe`(20)　`statistics`(13)　`student`(12)　`team`(11)　`home-school`(3)　`new`(3)
+**主要子模块**：`homeSchool`(33)　`feedback`(26)　`recipe`(20)　`statistics`(14)　`student`(12)　`team`(11)　`home-school`(3)　`new`(3)
 
 **代表性只读接口**：
 
@@ -138,13 +139,39 @@
 - `GET /api/feedback/groupList`
 - `GET /api/feedback/listDownloadWeekFeedbackPdfJob`
 - `GET /api/feedback/moduleList`
-- … 另有 107 个只读接口，见 `yungu_api_catalog.md`
+- … 另有 106 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 31 个（如 `feedbackList`、`auditFeedbackDetail`、`deleteById`、`importData`、`importNum`、`insertDownloadWeekFeedbackPdfJob`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 29 个（如 `feedbackList`、`auditFeedbackDetail`、`deleteById`、`importData`、`importNum`、`insertDownloadWeekFeedbackPdfJob`）—— 本文档与脚本都不会调用它们。
 
 ---
 
-## 任务与作业（140 条：只读 88 / 写 52）
+## 学生行为与德育（140 条：只读 96 / 写 44）
+
+行为记录、徽章、奖惩、班级/宿舍行为统计、早预警
+
+**主要子模块**：`newBehaviorRecord`(56)　`behaviorRecord`(28)　`statistics`(16)　`classBehaviorRecord`(8)　`dormitoryBehavior`(8)　`behaviorSku`(6)　`rank`(5)　`classBehavior`(4)
+
+**代表性只读接口**：
+
+- `GET /api/moralEduStatistics/CIOMetric`
+- `GET /calendar/api/behaviorRecord`
+- `未知 /calendar/api/behaviorRecord/aiAssistant`
+- `未知 /calendar/api/behaviorRecord/allStu/behavior/download/template`
+- `未知 /calendar/api/behaviorRecord/allStu/behavior/downloadFailData`
+- `POST /calendar/api/behaviorRecord/approval`
+- `GET /calendar/api/behaviorRecord/approval/detail`
+- `GET /calendar/api/behaviorRecord/getOwnChildrenInfo`
+- `GET /calendar/api/behaviorRecord/getUserSubject`
+- `GET /calendar/api/behaviorRecord/groupAnalyze`
+- `POST /calendar/api/behaviorRecord/groupStatistics`
+- `GET /calendar/api/behaviorRecord/listBehaviorType`
+- … 另有 84 个只读接口，见 `yungu_api_catalog.md`
+
+⚠️ 写操作 44 个（如 `export`、`import`、`importCount`、`create`、`editRecord`、`export`）—— 本文档与脚本都不会调用它们。
+
+---
+
+## 任务与作业（138 条：只读 86 / 写 52）
 
 作业/任务的发布、列表、提交、批改、草稿箱。学生看到的是「我的任务」
 
@@ -164,46 +191,21 @@
 - `GET /api/capture/getTutorStudentList`
 - `GET /api/capture/getTypeWork` ★
 - `GET /api/capture/getUploadPhotoPermission`
-- … 另有 76 个只读接口，见 `yungu_api_catalog.md`
+- … 另有 74 个只读接口，见 `yungu_api_catalog.md`
 
 ⚠️ 写操作 52 个（如 `addCaptureLabelRelation`、`addRegularLabel`、`addTypeWorkCaptureRelation`、`auditCapture`、`deleteCaptureById`、`insertBatchItemResult`）—— 本文档与脚本都不会调用它们。
 
 ---
 
-## 学生行为与德育（135 条：只读 92 / 写 43）
-
-行为记录、徽章、奖惩、班级/宿舍行为统计、早预警
-
-**主要子模块**：`newBehaviorRecord`(56)　`behaviorRecord`(27)　`statistics`(16)　`dormitoryBehavior`(8)　`classBehaviorRecord`(7)　`behaviorSku`(6)　`rank`(5)　`classBehavior`(3)
-
-**代表性只读接口**：
-
-- `GET /api/moralEduStatistics/CIOMetric`
-- `未知 /calendar/api/behaviorRecord/aiAssistant`
-- `未知 /calendar/api/behaviorRecord/allStu/behavior/download/template`
-- `未知 /calendar/api/behaviorRecord/allStu/behavior/downloadFailData`
-- `POST /calendar/api/behaviorRecord/approval`
-- `GET /calendar/api/behaviorRecord/approval/detail`
-- `GET /calendar/api/behaviorRecord/getOwnChildrenInfo`
-- `GET /calendar/api/behaviorRecord/getUserSubject`
-- `GET /calendar/api/behaviorRecord/groupAnalyze`
-- `POST /calendar/api/behaviorRecord/groupStatistics`
-- `GET /calendar/api/behaviorRecord/listBehaviorType`
-- `GET /calendar/api/behaviorRecord/listDorms`
-- … 另有 80 个只读接口，见 `yungu_api_catalog.md`
-
-⚠️ 写操作 43 个（如 `import`、`importCount`、`create`、`editRecord`、`export`、`saveOrUpdatePunishment`）—— 本文档与脚本都不会调用它们。
-
----
-
-## 升学与招生（98 条：只读 84 / 写 14）
+## 升学与招生（99 条：只读 85 / 写 14）
 
 升学规划：目标校、申请记录、文书模板、专业方向、访校
 
-**主要子模块**：`enrolmentPlan`(98)
+**主要子模块**：`enrolmentPlan`(99)
 
 **代表性只读接口**：
 
+- `GET /api/enrolmentPlan`
 - `GET /api/enrolmentPlan/acl`
 - `GET /api/enrolmentPlan/alreadyStages`
 - `POST /api/enrolmentPlan/alumnusList`
@@ -215,8 +217,7 @@
 - `GET /api/enrolmentPlan/applyRecordDownloadErrorInfo`
 - `GET /api/enrolmentPlan/applyRecordDownloadErrorInfoUpdate`
 - `GET /api/enrolmentPlan/applyRecordDownloadStudent`
-- `GET /api/enrolmentPlan/applyRecordEnrollResultType`
-- … 另有 72 个只读接口，见 `yungu_api_catalog.md`
+- … 另有 73 个只读接口，见 `yungu_api_catalog.md`
 
 ⚠️ 写操作 14 个（如 `batchDeleteTargetSchool`、`deleteSpecialtyById`、`deleteTargetSchool`、`exportTargetSchoolByTeacher`、`addOrUpdate`、`batchUpload`）—— 本文档与脚本都不会调用它们。
 
@@ -226,7 +227,7 @@
 
 当前用户与身份、ACL 权限、角色、组织/学部/年级/师生名单
 
-**主要子模块**：`user`(11)　`studentManagement`(5)　`acl`(4)　`student`(4)　`school`(3)　`public`(2)　`all`(2)　`current`(2)
+**主要子模块**：`user`(11)　`studentManagement`(6)　`acl`(4)　`student`(4)　`school`(3)　`public`(2)　`all`(2)　`current`(2)
 
 **代表性只读接口**：
 
@@ -248,11 +249,11 @@
 
 ---
 
-## 统计与看板（52 条：只读 42 / 写 10）
+## 统计与看板（53 条：只读 43 / 写 10）
 
 各类统计报表与看板（出勤/行为/课程/班级/年级/学部）
 
-**主要子模块**：`statistics`(30)　`analytics`(6)　`board`(4)　`getLearningOverviewConfig`(2)　`user`(2)　`fake_chart_data`(1)　`ifEditStuBoardPermission`(1)　`listLearningOverview`(1)
+**主要子模块**：`statistics`(31)　`analytics`(6)　`board`(4)　`getLearningOverviewConfig`(2)　`user`(2)　`fake_chart_data`(1)　`ifEditStuBoardPermission`(1)　`listLearningOverview`(1)
 
 **代表性只读接口**：
 
@@ -268,7 +269,7 @@
 - `GET /api/board/gradeListByTree`
 - `GET /api/fake_chart_data`
 - `GET /api/getLearningOverviewConfig`
-- … 另有 30 个只读接口，见 `yungu_api_catalog.md`
+- … 另有 31 个只读接口，见 `yungu_api_catalog.md`
 
 ⚠️ 写操作 10 个（如 `saveModuleContentOfStuBoard`、`export`、`export`、`export`、`export`、`export`）—— 本文档与脚本都不会调用它们。
 
@@ -326,11 +327,11 @@
 
 ---
 
-## 其他（27 条：只读 14 / 写 13）
+## 其他（28 条：只读 15 / 写 13）
 
 未能按路径语义归类的杂项
 
-**主要子模块**：`habit`(4)　`public`(1)　`activities`(1)　`transcloudIntegralList`(1)　`updateDescription`(1)　`updatePersonDefault`(1)　`checkCCA`(1)　`deleteCommonPhrasesById`(1)
+**主要子模块**：`habit`(5)　`public`(1)　`activities`(1)　`transcloudIntegralList`(1)　`updateDescription`(1)　`updatePersonDefault`(1)　`checkCCA`(1)　`deleteCommonPhrasesById`(1)
 
 **代表性只读接口**：
 
@@ -341,12 +342,12 @@
 - `GET /calendar/api/getCommonPhrases`
 - `GET /calendar/api/getCommonPhrasesClassification`
 - `GET /calendar/api/query/statusStatistic`
+- `GET /calendar/api/rank`
 - `GET /calendar/api/search/grades`
 - `POST /calendar/api/stuDayAnalyze`
 - `未知 /center/api/general/translate`
-- `POST /course/api/chooseBySubject`
-- `GET /evaluation/api/habit/listHabitTree`
-- … 另有 2 个只读接口，见 `yungu_api_catalog.md`
+- `未知 /evaluation/api/habit`
+- … 另有 3 个只读接口，见 `yungu_api_catalog.md`
 
 ⚠️ 写操作 13 个（如 `updateDescription`、`updatePersonDefault`、`deleteCommonPhrasesById`、`deleteCommonPhrasesClassificationById`、`count`、`saveCommonPhrases`）—— 本文档与脚本都不会调用它们。
 
@@ -404,11 +405,11 @@
 
 ---
 
-## 阅读（20 条：只读 16 / 写 4）
+## 阅读（19 条：只读 15 / 写 4）
 
 阅读记录、阅读统计、书目
 
-**主要子模块**：`read`(5)　`export`(2)　`messageCenter`(2)　`readRecord`(2)　`addReadComment`(1)　`deletedReadComment`(1)　`getMyReadBooks`(1)　`getMyReadInfo`(1)
+**主要子模块**：`read`(5)　`export`(2)　`readRecord`(2)　`addReadComment`(1)　`deletedReadComment`(1)　`getMyReadBooks`(1)　`getMyReadInfo`(1)　`getMyReadStatistics`(1)
 
 **代表性只读接口**：
 
@@ -416,7 +417,6 @@
 - `GET /api/getMyReadInfo/byRange`
 - `GET /api/getMyReadStatistics`
 - `POST /api/messageCenter/read`
-- `GET /api/messageCenter/readAll`
 - `GET /api/read/detailById`
 - `GET /api/read/dynamicList`
 - `GET /api/read/listStatistics`
@@ -424,7 +424,8 @@
 - `GET /api/read/yesterdayStatistics`
 - `GET /api/readBooks/byRange`
 - `GET /api/readData/statistics`
-- … 另有 4 个只读接口，见 `yungu_api_catalog.md`
+- `GET /api/readDate`
+- … 另有 3 个只读接口，见 `yungu_api_catalog.md`
 
 ⚠️ 写操作 4 个（如 `addReadComment`、`deletedReadComment`、`statistics`、`readRecord`）—— 本文档与脚本都不会调用它们。
 
@@ -475,11 +476,11 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 
 ---
 
-## 消息与通知（11 条：只读 9 / 写 2）
+## 消息与通知（9 条：只读 7 / 写 2）
 
 站内消息、通知、告警、催办
 
-**主要子模块**：`messageCenter`(4)　`alarm`(1)　`conversation`(1)　`hurry`(1)　`listChatGPTUsageAmountBySchoolId`(1)　`notices`(1)　`project`(1)　`school`(1)
+**主要子模块**：`messageCenter`(2)　`alarm`(1)　`conversation`(1)　`hurry`(1)　`listChatGPTUsageAmountBySchoolId`(1)　`notices`(1)　`project`(1)　`school`(1)
 
 **代表性只读接口**：
 
@@ -487,11 +488,9 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 - `GET /api/listChatGPTUsageAmountBySchoolId`
 - `GET /api/messageCenter/count`
 - `GET /api/messageCenter/page`
-- `未知 /api/messageCenter/pageAll`
 - `GET /api/notices`
 - `GET /api/project/notice`
 - `GET /course/api/school/getMessageRemainingCount`
-- `GET /message/api/messageCenter/v2/page`
 
 ⚠️ 写操作 2 个（如 `alarm`、`hurry`）—— 本文档与脚本都不会调用它们。
 

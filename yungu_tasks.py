@@ -87,6 +87,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -159,7 +160,10 @@ CANDIDATE_ENDPOINTS = [
     "/api/getTaskDataCount", COUNT_ENDPOINT,
 ]
 
-API_RE = re.compile(r"/api/[A-Za-z0-9_/.-]+")
+# 注意保留子应用前缀（/calendar/api/、/evaluation/api/…）。
+# 若写成 /api/… 开头，前缀会被吃掉，/calendar/api/x 会被记成 /api/x，
+# 既产生幻影、又漏掉真实路径（这是本脚本历史上踩过两次的坑）。
+API_RE = re.compile(r"(?:/[A-Za-z][A-Za-z0-9-]*)?/api/[A-Za-z0-9_/.-]+")
 BUNDLE_RE = re.compile(r"https?://cdn-assets\.yungu\.org/task/[0-9]+/index\.js")
 SCRIPT_RE = re.compile(r"""(?:src|href)=["']([^"']*task/[^"']*index\.js)["']""")
 
@@ -505,7 +509,15 @@ def cmd_comments(args):
 
     me, n_tasks, n_comments = None, 0, 0
     payload = []
+    requests_made = 0
     for group, t in targets:
+        # 限流：每个任务一次请求，达到上限即停（对应 README 免责声明第 6 条）
+        if requests_made >= args.max_requests:
+            print("\n!! 已达请求上限 %d（--max-requests 可调），停止扫描。" % args.max_requests)
+            break
+        if requests_made and args.sleep:
+            time.sleep(args.sleep)
+        requests_made += 1
         tpid = t.get("taskPublishId")
         c, err = fetch_achievement(args.cookie, tpid)
         if err:
@@ -617,9 +629,18 @@ def cmd_recon(args):
         print("   !! 下载失败 HTTP %s" % st)
         return 1
     root = bundle_url.rsplit("/", 1)[0]
-    ids = sorted(set(int(x) for x in re.findall(r"\b(\d{1,4})\.async\.js\b", main))) or list(range(1, 341))
+    # chunk 清单有两个来源，都要用：
+    #   ① 主包里被点名引用的 <id>.async.js
+    #   ② webpack 的声明表 o.e=function(e){...0!==r[e]&&{0:1,1:1,...}}
+    #      —— 只靠 ① 会漏掉大量未按名引用的 chunk（实测 340 vs 716 个文件）
+    ids = {int(x) for x in re.findall(r"\b(\d{1,4})\.async\.js\b", main)}
+    m = re.search(r"0!==r\[e\]&&\{([0-9:,]+)\}", main)
+    if m:
+        ids |= {int(x) for x in re.findall(r"(\d+):", m.group(1))}
+    if not ids:
+        ids = set(range(1, 341))
     texts = [main]
-    for cid in ids:
+    for cid in sorted(ids):
         s, t = http_request("%s/%d.async.js" % (root, cid), cookie=args.cookie)
         if s == 200 and t:
             texts.append(t)
@@ -627,7 +648,9 @@ def cmd_recon(args):
     for t in texts:
         for m in API_RE.findall(t):
             e = m.rstrip(".,;")
-            if e.count("/") >= 2:
+            # 判据是「/api/ 后还有内容」，不能数斜杠 —— 否则会漏掉
+            # /api/saveCommentary 这类单段接口（实测漏 9 个）
+            if re.search(r"/api/.", e) and not e.rstrip("/").endswith("/api"):
                 eps.add(e)
     task_eps = sorted(e for e in eps if re.search(r"task|homework|draft|capture", e, re.I))
     print("   下载 %d 个文件，枚举到 %d 个 /api/ 接口（任务相关 %d）"
@@ -687,6 +710,10 @@ def main():
                     help="comments 用：连没有评论的任务也列出来")
     ap.add_argument("--limit", type=int, default=20,
                     help="comments 用：最多扫描多少个任务（默认 20，每个任务一次请求）")
+    ap.add_argument("--max-requests", type=int, default=300,
+                    help="comments 用：单次运行的请求数硬上限（默认 300，保护站点）")
+    ap.add_argument("--sleep", type=float, default=0.3,
+                    help="comments 用：两次请求之间的间隔秒数（默认 0.3）")
     ap.add_argument("--group", help="tasks 用：只看某个派生状态，如 逾期未交/待修改/准时提交/教师已确认")
     ap.add_argument("--week", type=int, default=0,
                     help="timetable 用：0=本周(默认) 1=下周 -1=上周")

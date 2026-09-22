@@ -1,6 +1,7 @@
-# task.yungu.org 对外开放接口目录（v4）
+# task.yungu.org 对外开放接口目录
 
-- 来源：`cdn-assets.yungu.org/task/20260916175936/` 主包 + **716 个 chunk**（含主包声明的全部 615 个）
+- 来源：`cdn-assets.yungu.org/task/https://cdn-assets.yungu.org/task/20260922090917/`（主包 + 615 个 chunk，含 webpack 声明清单里的全部 id）
+- 抓取时间对应的构建号：**https://cdn-assets.yungu.org/task/20260922090917**（站点重新部署时会变，接口数会小幅波动）
 - 鉴权：CAS SSO；未登录时 `/api/*` 统一返回 `code:1000 / message:"请刷新！"`
 - **鉴权过滤器前置于路由**：不存在的接口与真实接口返回同一信封，未登录无法靠探测枚举
 
@@ -12,55 +13,54 @@
 2. **独立 bundle 的子应用不在内**。日程子应用 `newSchoolCalendar` 有自己的产物，
    所以 `/calendar/api/personal/schdedule/templateForPc`（课表）**也不在目录里**。
 
-> 目录是**下界而非全集**。要确认某接口是否真存在，以「页面实测抓包」为准（见 `docs/script.md`）。
+> 目录是**下界而非全集**。要确认某接口是否真存在，以「页面实测抓包」为准（见 `docs/recon-method.md`）。
 
-## 统计（1335 条）
+## 统计（1345 条）
 
 | HTTP 方法 | 条数 |
 |---|---|
-| `GET` | 889 |
-| `POST` | 367 |
-| `未知` | 76 |
+| `GET` | 899 |
+| `POST` | 368 |
+| `未知` | 75 |
 | `PUT` | 3 |
 
-| 只读 | 955 |
-| 写操作 | 380 |
+| 只读 | 964 |
+| 写操作 | 381 |
 
 | 服务前缀 | 条数 |
 |---|---|
-| `/api` | 918 |
-| `/calendar/api` | 243 |
-| `/evaluation/api` | 93 |
-| `/course/api` | 31 |
+| `/api` | 930 |
+| `/calendar/api` | 251 |
+| `/evaluation/api` | 94 |
 | `/iot/api` | 26 |
+| `/course/api` | 21 |
 | `/leave/api` | 11 |
 | `/center/api` | 5 |
 | `/agent-max/api` | 2 |
 | `/health/api` | 2 |
 | `/flashNote/api` | 1 |
-| `/message/api` | 1 |
 | `/task/api` | 1 |
 | `/work/api` | 1 |
 
 | 功能域 | 条数 |
 |---|---|
 | 课程与教学 | 244 |
-| 评价与素养成绩 | 226 |
-| 家校与反馈 | 150 |
-| 任务与作业 | 140 |
-| 学生行为与德育 | 135 |
-| 升学与招生 | 98 |
+| 评价与素养成绩 | 236 |
+| 家校与反馈 | 147 |
+| 学生行为与德育 | 140 |
+| 任务与作业 | 138 |
+| 升学与招生 | 99 |
 | 用户与权限 | 67 |
-| 统计与看板 | 52 |
+| 统计与看板 | 53 |
 | 课表与日程 | 50 |
 | 考勤与请假 | 35 |
-| 其他 | 27 |
+| 其他 | 28 |
 | 成长目标与档案 | 27 |
 | 文件与媒体 | 21 |
-| 阅读 | 20 |
+| 阅读 | 19 |
 | AI 功能 | 12 |
 | 配置与字典 | 12 |
-| 消息与通知 | 11 |
+| 消息与通知 | 9 |
 | 互动与点赞 | 6 |
 | 健康与体育 | 2 |
 
@@ -73,6 +73,7 @@
 - `POST` `/api/user/relation/deleteMyListenedLesson` ⚠️写
 - `未知` `/api/user/relation/ifDirectorOfTeachingOrSubjectChief`
 - `POST` `/api/user/relation/lessonDetail`
+- `POST` `/api/user/relation/lessonDetailMatch`
 - `POST` `/api/user/relation/lessonDetailResolve`
 - `GET` `/api/user/relation/lessonList`
 - `未知` `/api/user/relation/lessonListPdfExport`
@@ -83,6 +84,7 @@
 - `GET` `/api/user/relation/myLessonStatistics`
 - `GET` `/api/user/relation/openLessonCalendar`
 - `GET` `/api/user/relation/openLessonList`
+- `GET` `/api/user/relation/teacherAnalysis`
 - `POST` `/api/user/relation/teacherAnalysis/detail`
 - `未知` `/api/user/relation/teacherAnalysis/export` ⚠️写
 - `POST` `/api/user/relation/teacherAnalysis/filterOptions`
@@ -150,7 +152,6 @@
 - `GET` `/api/course/lessonList/byTeacherIdList`
 - `GET` `/api/course/listCoursesBySemId`
 - `GET` `/api/course/student/all`
-- `未知` `/course/api/course/subject`
 
 **`get`**
 - `GET` `/api/get/AI/lesson/listenSummary`
@@ -160,6 +161,15 @@
 - `GET` `/api/get/openLesson`
 - `GET` `/api/get/openLessonList`
 - `GET` `/api/get/openLessonMatchCandidates`
+
+**`openLesson`**
+- `GET` `/api/openLesson`
+- `GET` `/api/openLesson/exportList` ⚠️写
+- `GET` `/api/openLesson/getUserByCourseId`
+- `GET` `/api/openLesson/listLessonOpenClassification`
+- `GET` `/api/openLesson/monthlyStatistics`
+- `GET` `/api/openLesson/options`
+- `GET` `/api/openLesson/permission`
 
 **`plan`**
 - `POST` `/api/plan/addOrUpdateCourse` ⚠️写
@@ -185,14 +195,6 @@
 - `GET` `/api/knowledge/getTeachingMaterial`
 - `GET` `/api/knowledge/list`
 - `POST` `/api/knowledge/updateKnowLedge` ⚠️写
-
-**`openLesson`**
-- `GET` `/api/openLesson/exportList` ⚠️写
-- `GET` `/api/openLesson/getUserByCourseId`
-- `GET` `/api/openLesson/listLessonOpenClassification`
-- `GET` `/api/openLesson/monthlyStatistics`
-- `GET` `/api/openLesson/options`
-- `GET` `/api/openLesson/permission`
 
 **`exam`**
 - `POST` `/api/exam/board/resourceKanban`
@@ -280,6 +282,10 @@
 - `GET` `/api/my/courses`
 - `GET` `/api/my/currentCourses`
 
+**`qualityLesson`**
+- `GET` `/api/qualityLesson`
+- `POST` `/api/qualityLesson/addReflectionOrRecord` ⚠️写
+
 **`quiz`**
 - `POST` `/api/quiz/createOrUpdate` ⚠️写
 - `POST` `/api/quiz/list`
@@ -287,10 +293,6 @@
 **`relieve`**
 - `GET` `/api/relieve/lesson/group`
 - `GET` `/api/relieve/lesson/teacher`
-
-**`teaching`**
-- `GET` `/course/api/teaching/allGrade`
-- `GET` `/course/api/teaching/listUserAclConfig`
 
 **`acl`**
 - `GET` `/api/acl/courseList`
@@ -418,12 +420,6 @@
 **`listAllOrgTeachers`**
 - `GET` `/course/api/listAllOrgTeachers`
 
-**`listAllTeachers`**
-- `GET` `/course/api/listAllTeachers`
-
-**`listAllTeachersWithDept`**
-- `GET` `/course/api/listAllTeachersWithDept`
-
 **`listCourseDetailOfStudent`**
 - `GET` `/api/listCourseDetailOfStudent`
 
@@ -460,9 +456,6 @@
 **`punctualitySubmissionRateOfCourse`**
 - `GET` `/api/punctualitySubmissionRateOfCourse`
 
-**`qualityLesson`**
-- `POST` `/api/qualityLesson/addReflectionOrRecord` ⚠️写
-
 **`query`**
 - `GET` `/calendar/api/query/currentCourseClassAttendanceEvents`
 
@@ -496,6 +489,9 @@
 **`teacherResetStuPassWord`**
 - `GET` `/api/teacherResetStuPassWord`
 
+**`teaching`**
+- `GET` `/course/api/teaching/listUserAclConfig`
+
 **`team`**
 - `GET` `/api/team/listTeamByCourseId`
 
@@ -520,7 +516,7 @@
 **`updateUnitSort`**
 - `GET` `/api/updateUnitSort` ⚠️写
 
-### 评价与素养成绩（226）
+### 评价与素养成绩（236）
 
 **`power`**
 - `POST` `/api/power/addOrUpdateExamPlan` ⚠️写
@@ -560,6 +556,35 @@
 - `GET` `/api/power/templateList`
 - `POST` `/api/power/upload/studentScore` ⚠️写
 - `GET` `/evaluation/api/power/stageList`
+
+**`user`**
+- `GET` `/api/user/relation/lessonEvaluation`
+- `POST` `/api/user/relation/lessonEvaluation/bindTemplate` ⚠️写
+- `GET` `/api/user/relation/lessonEvaluation/context`
+- `GET` `/api/user/relation/lessonEvaluation/mySubmission`
+- `GET` `/api/user/relation/lessonEvaluation/reportExportData`
+- `GET` `/api/user/relation/lessonEvaluation/resultDetails`
+- `GET` `/api/user/relation/lessonEvaluation/resultOverview`
+- `GET` `/api/user/relation/lessonEvaluation/templateOptions`
+- `GET` `/api/user/relation/lessonEvaluation/templateOverview`
+- `GET` `/api/user/relation/lessonEvaluation/templatePreview`
+- `POST` `/api/user/relation/lessonEvaluation/updateVisibility` ⚠️写
+- `GET` `/api/user/relation/lessonEvaluationTemplate`
+- `POST` `/api/user/relation/lessonEvaluationTemplate/delete` ⚠️写
+- `未知` `/api/user/relation/lessonEvaluationTemplate/detail`
+- `未知` `/api/user/relation/lessonEvaluationTemplate/editorDetail` ⚠️写
+- `POST` `/api/user/relation/lessonEvaluationTemplate/identityVisibility`
+- `GET` `/api/user/relation/lessonEvaluationTemplate/identityVisibilityCapability`
+- `POST` `/api/user/relation/lessonEvaluationTemplate/import` ⚠️写
+- `POST` `/api/user/relation/lessonEvaluationTemplate/import/confirm` ⚠️写
+- `未知` `/api/user/relation/lessonEvaluationTemplate/import/detail` ⚠️写
+- `GET` `/api/user/relation/lessonEvaluationTemplate/list`
+- `POST` `/api/user/relation/lessonEvaluationTemplate/parseDocx`
+- `GET` `/api/user/relation/lessonEvaluationTemplate/permission`
+- `POST` `/api/user/relation/lessonEvaluationTemplate/save` ⚠️写
+- `POST` `/api/user/relation/lessonEvaluationTemplate/saveText` ⚠️写
+- `POST` `/api/user/relation/lessonEvaluationTemplate/scoreVisibility`
+- `POST` `/api/user/relation/lessonEvaluationTemplate/status`
 
 **`evaluation`**
 - `POST` `/evaluation/api/evaluation/addOrUpdateTemplate` ⚠️写
@@ -638,27 +663,8 @@
 - `POST` `/evaluation/api/indicator/saveGeneralLiteracyInitialData` ⚠️写
 - `GET` `/evaluation/api/indicator/updateIndicatorTreeSort` ⚠️写
 
-**`user`**
-- `POST` `/api/user/relation/lessonEvaluation/bindTemplate` ⚠️写
-- `GET` `/api/user/relation/lessonEvaluation/context`
-- `GET` `/api/user/relation/lessonEvaluation/mySubmission`
-- `GET` `/api/user/relation/lessonEvaluation/resultDetails`
-- `GET` `/api/user/relation/lessonEvaluation/resultOverview`
-- `GET` `/api/user/relation/lessonEvaluation/templateOptions`
-- `GET` `/api/user/relation/lessonEvaluation/templateOverview`
-- `POST` `/api/user/relation/lessonEvaluation/updateVisibility` ⚠️写
-- `POST` `/api/user/relation/lessonEvaluationTemplate/delete` ⚠️写
-- `未知` `/api/user/relation/lessonEvaluationTemplate/detail`
-- `POST` `/api/user/relation/lessonEvaluationTemplate/import` ⚠️写
-- `POST` `/api/user/relation/lessonEvaluationTemplate/import/confirm` ⚠️写
-- `未知` `/api/user/relation/lessonEvaluationTemplate/import/detail` ⚠️写
-- `GET` `/api/user/relation/lessonEvaluationTemplate/list`
-- `POST` `/api/user/relation/lessonEvaluationTemplate/parseDocx`
-- `GET` `/api/user/relation/lessonEvaluationTemplate/permission`
-- `POST` `/api/user/relation/lessonEvaluationTemplate/save` ⚠️写
-- `POST` `/api/user/relation/lessonEvaluationTemplate/status`
-
 **`standardizedTest`**
+- `未知` `/api/standardizedTest`
 - `GET` `/api/standardizedTest/academicOverview`
 - `GET` `/api/standardizedTest/courseScore`
 - `GET` `/api/standardizedTest/deleteById` ⚠️写
@@ -884,7 +890,7 @@
 **`updateGraduationCriteria`**
 - `POST` `/api/updateGraduationCriteria` ⚠️写
 
-### 家校与反馈（150）
+### 家校与反馈（147）
 
 **`homeSchool`**
 - `GET` `/api/homeSchool`
@@ -981,6 +987,7 @@
 - `POST` `/calendar/api/statistics/group/analyzeJSONExplain`
 - `GET` `/calendar/api/statistics/group/chiefTutor`
 - `GET` `/calendar/api/statistics/group/dayAnalyze`
+- `POST` `/calendar/api/statistics/group/student/count`
 - `GET` `/calendar/api/statistics/listTutorStudent`
 - `GET` `/calendar/api/statistics/stu/tutor`
 - `POST` `/calendar/api/statistics/tutor/analyze/overview`
@@ -1043,9 +1050,6 @@
 **`(root)`**
 - `GET` `/api//selectAllTutor`
 
-**`addGroup`**
-- `未知` `/course/api/addGroup` ⚠️写
-
 **`export`**
 - `未知` `/api/export/feedbackList` ⚠️写
 
@@ -1073,12 +1077,6 @@
 **`listGroup`**
 - `POST` `/api/listGroup`
 
-**`listGroupDetail`**
-- `未知` `/course/api/listGroupDetail`
-
-**`listMyGroup`**
-- `GET` `/course/api/listMyGroup`
-
 **`saveTutorSchoolConfig`**
 - `POST` `/api/saveTutorSchoolConfig` ⚠️写
 
@@ -1097,10 +1095,179 @@
 **`stage_feedback_list`**
 - `POST` `/evaluation/api/stage_feedback_list`
 
-**`updateGroup`**
-- `POST` `/course/api/updateGroup` ⚠️写
+### 学生行为与德育（140）
 
-### 任务与作业（140）
+**`newBehaviorRecord`**
+- `GET` `/calendar/api/newBehaviorRecord`
+- `GET` `/calendar/api/newBehaviorRecord/appeal`
+- `POST` `/calendar/api/newBehaviorRecord/batchUpdate` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/batchUpdateEvaluatorDetail` ⚠️写
+- `GET` `/calendar/api/newBehaviorRecord/behavior/calculation/list`
+- `未知` `/calendar/api/newBehaviorRecord/behavior/export` ⚠️写
+- `未知` `/calendar/api/newBehaviorRecord/behavior/grade`
+- `POST` `/calendar/api/newBehaviorRecord/behavior/group`
+- `POST` `/calendar/api/newBehaviorRecord/behavior/import/v2` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/behavior/my/group`
+- `GET` `/calendar/api/newBehaviorRecord/behavior/permission`
+- `GET` `/calendar/api/newBehaviorRecord/behavior/stage`
+- `GET` `/calendar/api/newBehaviorRecord/buildingArea`
+- `GET` `/calendar/api/newBehaviorRecord/checkConfigPermission`
+- `GET` `/calendar/api/newBehaviorRecord/checkStageConfigPermission`
+- `POST` `/calendar/api/newBehaviorRecord/commitGroupRecord` ⚠️写
+- `GET` `/calendar/api/newBehaviorRecord/deleteBehaviorRecord` ⚠️写
+- `GET` `/calendar/api/newBehaviorRecord/deleteDetail` ⚠️写
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/actionList`
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/detail`
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/enable` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/followRecord/add` ⚠️写
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/followRecord/delete` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/followRecord/update` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/grade/analysis`
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/group/analysis`
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/levelList`
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/list`
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/manualCreate`
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/rule/enable` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/saveOrUpdate` ⚠️写
+- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/sendMessage` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/student/analysis`
+- `GET` `/calendar/api/newBehaviorRecord/floor`
+- `GET` `/calendar/api/newBehaviorRecord/getAllBadge`
+- `GET` `/calendar/api/newBehaviorRecord/groupOverview`
+- `POST` `/calendar/api/newBehaviorRecord/groupStudent`
+- `GET` `/calendar/api/newBehaviorRecord/listBadge`
+- `GET` `/calendar/api/newBehaviorRecord/listBehavior`
+- `GET` `/calendar/api/newBehaviorRecord/listBehaviorAllUseType`
+- `GET` `/calendar/api/newBehaviorRecord/listBehaviorByMode`
+- `GET` `/calendar/api/newBehaviorRecord/listBehaviorTree`
+- `GET` `/calendar/api/newBehaviorRecord/listDorm`
+- `GET` `/calendar/api/newBehaviorRecord/listDormInfo`
+- `POST` `/calendar/api/newBehaviorRecord/listGroupRecord`
+- `POST` `/calendar/api/newBehaviorRecord/listStudent`
+- `GET` `/calendar/api/newBehaviorRecord/listStudentBadge`
+- `GET` `/calendar/api/newBehaviorRecord/listTag`
+- `GET` `/calendar/api/newBehaviorRecord/revokeTier` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/saveOrUpdateGroupRecord` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/studentBehaviorDetail`
+- `GET` `/calendar/api/newBehaviorRecord/studentTierDetail`
+- `POST` `/calendar/api/newBehaviorRecord/updateBadgeConfig` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/updateConfig` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/updateRecord` ⚠️写
+- `POST` `/calendar/api/newBehaviorRecord/write/group` ⚠️写
+
+**`behaviorRecord`**
+- `GET` `/calendar/api/behaviorRecord`
+- `未知` `/calendar/api/behaviorRecord/aiAssistant`
+- `未知` `/calendar/api/behaviorRecord/allStu/behavior/download/template`
+- `未知` `/calendar/api/behaviorRecord/allStu/behavior/downloadFailData`
+- `POST` `/calendar/api/behaviorRecord/allStu/behavior/import` ⚠️写
+- `POST` `/calendar/api/behaviorRecord/allStu/behavior/importCount` ⚠️写
+- `POST` `/calendar/api/behaviorRecord/approval`
+- `GET` `/calendar/api/behaviorRecord/approval/detail`
+- `POST` `/calendar/api/behaviorRecord/create` ⚠️写
+- `POST` `/calendar/api/behaviorRecord/editRecord` ⚠️写
+- `GET` `/calendar/api/behaviorRecord/getOwnChildrenInfo`
+- `GET` `/calendar/api/behaviorRecord/getUserSubject`
+- `GET` `/calendar/api/behaviorRecord/groupAnalyze`
+- `未知` `/calendar/api/behaviorRecord/groupAnalyze/export` ⚠️写
+- `POST` `/calendar/api/behaviorRecord/groupStatistics`
+- `GET` `/calendar/api/behaviorRecord/listBehaviorType`
+- `GET` `/calendar/api/behaviorRecord/listDorms`
+- `GET` `/calendar/api/behaviorRecord/listGrades`
+- `POST` `/calendar/api/behaviorRecord/listStudentRecord`
+- `GET` `/calendar/api/behaviorRecord/listStudents`
+- `GET` `/calendar/api/behaviorRecord/listSubjectByStage`
+- `POST` `/calendar/api/behaviorRecord/pendingReview/list`
+- `POST` `/calendar/api/behaviorRecord/saveOrUpdatePunishment` ⚠️写
+- `POST` `/calendar/api/behaviorRecord/showBehaviorRecordDetail`
+- `POST` `/calendar/api/behaviorRecord/showLatestRecord`
+- `POST` `/calendar/api/behaviorRecord/showMyPending`
+- `POST` `/calendar/api/behaviorRecord/showTypeStatistics`
+- `POST` `/calendar/api/behaviorRecord/update` ⚠️写
+
+**`statistics`**
+- `POST` `/calendar/api/statistics/allStu/behavior`
+- `GET` `/calendar/api/statistics/allStu/behavior/export` ⚠️写
+- `GET` `/calendar/api/statistics/behavior`
+- `GET` `/calendar/api/statistics/behavior/punishment/detail`
+- `POST` `/calendar/api/statistics/behaviorSummary/export/data` ⚠️写
+- `POST` `/calendar/api/statistics/behaviorSummary/record/batch` ⚠️写
+- `POST` `/calendar/api/statistics/behaviorSummary/record/page`
+- `POST` `/calendar/api/statistics/distributionChartDetails/activeBehavior`
+- `POST` `/calendar/api/statistics/dorm/allStu/behavior`
+- `POST` `/calendar/api/statistics/dorm/analyze/allStu/behavior`
+- `POST` `/calendar/api/statistics/dorm/analyze/overview`
+- `POST` `/calendar/api/statistics/dorm/analyze/rank`
+- `POST` `/calendar/api/statistics/dorm/analyze/student/rank`
+- `GET` `/calendar/api/statistics/dorm/behavior`
+- `GET` `/calendar/api/statistics/group/behaviorAnalyze`
+- `GET` `/calendar/api/statistics/stu/behaviorAnalyze`
+
+**`classBehaviorRecord`**
+- `GET` `/calendar/api/classBehaviorRecord`
+- `POST` `/calendar/api/classBehaviorRecord/allStu/behavior`
+- `未知` `/calendar/api/classBehaviorRecord/allStu/behavior/export` ⚠️写
+- `GET` `/calendar/api/classBehaviorRecord/approval/detail`
+- `未知` `/calendar/api/classBehaviorRecord/behavior/grade`
+- `POST` `/calendar/api/classBehaviorRecord/create` ⚠️写
+- `GET` `/calendar/api/classBehaviorRecord/listBehavior`
+- `POST` `/calendar/api/classBehaviorRecord/student/write/group` ⚠️写
+
+**`dormitoryBehavior`**
+- `GET` `/calendar/api/dormitoryBehavior/records/batch` ⚠️写
+- `GET` `/calendar/api/dormitoryBehavior/reports/dorms`
+- `GET` `/calendar/api/dormitoryBehavior/reports/students`
+- `GET` `/calendar/api/dormitoryBehavior/students/add-options`
+- `GET` `/calendar/api/dormitoryBehavior/students/context`
+- `GET` `/calendar/api/dormitoryBehavior/students/dorms`
+- `GET` `/calendar/api/dormitoryBehavior/students/page`
+- `GET` `/calendar/api/dormitoryBehavior/students/selection-summary`
+
+**`behaviorSku`**
+- `POST` `/calendar/api/behaviorSku/addSku` ⚠️写
+- `POST` `/calendar/api/behaviorSku/addSkuExchange` ⚠️写
+- `GET` `/calendar/api/behaviorSku/listSku`
+- `GET` `/calendar/api/behaviorSku/listSkuExchange`
+- `POST` `/calendar/api/behaviorSku/updateSku` ⚠️写
+- `POST` `/calendar/api/behaviorSku/verifySku` ⚠️写
+
+**`rank`**
+- `GET` `/calendar/api/rank/getLastUploadFieldUrl`
+- `GET` `/calendar/api/rank/getSchoolConfig`
+- `GET` `/calendar/api/rank/listRelatedBehavior`
+- `POST` `/calendar/api/rank/saveOrUpdateRelatedBehavior` ⚠️写
+- `POST` `/calendar/api/rank/saveOrUpdateSchoolConfig` ⚠️写
+
+**`classBehavior`**
+- `GET` `/calendar/api/classBehavior`
+- `未知` `/calendar/api/classBehavior/report/`
+- `未知` `/calendar/api/classBehavior/report/export/jobs/` ⚠️写
+- `POST` `/calendar/api/classBehavior/report/export/v2/jobs` ⚠️写
+
+**`studentBehavior`**
+- `未知` `/api/studentBehavior/analysis/export` ⚠️写
+- `GET` `/calendar/api/studentBehavior`
+- `未知` `/calendar/api/studentBehavior/analysis/`
+
+**`behaviorType`**
+- `GET` `/calendar/api/behaviorType/list`
+
+**`listDormPermission`**
+- `GET` `/calendar/api/listDormPermission`
+
+**`moralEduStatistics`**
+- `GET` `/api/moralEduStatistics/CIOMetric`
+
+**`school`**
+- `GET` `/calendar/api/school/getDormStage`
+
+**`setStudentDormStatus`**
+- `POST` `/calendar/api/setStudentDormStatus` ⚠️写
+
+**`studentManagement`**
+- `GET` `/calendar/api/studentManagement/dorms`
+
+### 任务与作业（138）
 
 **`capture`**
 - `GET` `/api/capture`
@@ -1207,7 +1374,7 @@
 - `GET` `/api/user/relation/checkPublishDiagnosticLessonPermission`
 - `POST` `/api/user/relation/lessonEvaluation/saveDraft` ⚠️写
 - `POST` `/api/user/relation/lessonEvaluation/submit` ⚠️写
-- `POST` `/api/user/relation/updateTaskUserRelationLesson` ⚠️写
+- `GET` `/api/user/relation/updateTaskUserRelationLesson` ⚠️写
 
 **`file-services`**
 - `GET` `/center/api/file-services/addFileAnalysisTask` ⚠️写
@@ -1221,10 +1388,6 @@
 **`new`**
 - `POST` `/api/new/getTaskResultList`
 - `POST` `/api/new/getTaskUser`
-
-**`taskRateSettings`**
-- `POST` `/api/taskRateSettings`
-- `GET` `/api/taskRateSettings/permission`
 
 **`users`**
 - `POST` `/api/users/taskPublish/hurry` ⚠️写
@@ -1338,176 +1501,10 @@
 **`taskSubmissionRateGroupByCourse`**
 - `GET` `/api/taskSubmissionRateGroupByCourse`
 
-### 学生行为与德育（135）
-
-**`newBehaviorRecord`**
-- `未知` `/calendar/api/newBehaviorRecord`
-- `GET` `/calendar/api/newBehaviorRecord/appeal`
-- `POST` `/calendar/api/newBehaviorRecord/batchUpdate` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/batchUpdateEvaluatorDetail` ⚠️写
-- `GET` `/calendar/api/newBehaviorRecord/behavior/calculation/list`
-- `未知` `/calendar/api/newBehaviorRecord/behavior/export` ⚠️写
-- `未知` `/calendar/api/newBehaviorRecord/behavior/grade`
-- `POST` `/calendar/api/newBehaviorRecord/behavior/group`
-- `POST` `/calendar/api/newBehaviorRecord/behavior/import/v2` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/behavior/my/group`
-- `GET` `/calendar/api/newBehaviorRecord/behavior/permission`
-- `GET` `/calendar/api/newBehaviorRecord/behavior/stage`
-- `GET` `/calendar/api/newBehaviorRecord/buildingArea`
-- `GET` `/calendar/api/newBehaviorRecord/checkConfigPermission`
-- `GET` `/calendar/api/newBehaviorRecord/checkStageConfigPermission`
-- `POST` `/calendar/api/newBehaviorRecord/commitGroupRecord` ⚠️写
-- `GET` `/calendar/api/newBehaviorRecord/deleteBehaviorRecord` ⚠️写
-- `GET` `/calendar/api/newBehaviorRecord/deleteDetail` ⚠️写
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/actionList`
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/detail`
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/enable` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/followRecord/add` ⚠️写
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/followRecord/delete` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/followRecord/update` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/grade/analysis`
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/group/analysis`
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/levelList`
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/list`
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/manualCreate`
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/rule/enable` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/saveOrUpdate` ⚠️写
-- `GET` `/calendar/api/newBehaviorRecord/earlyWarning/sendMessage` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/earlyWarning/student/analysis`
-- `GET` `/calendar/api/newBehaviorRecord/floor`
-- `GET` `/calendar/api/newBehaviorRecord/getAllBadge`
-- `GET` `/calendar/api/newBehaviorRecord/groupOverview`
-- `POST` `/calendar/api/newBehaviorRecord/groupStudent`
-- `GET` `/calendar/api/newBehaviorRecord/listBadge`
-- `GET` `/calendar/api/newBehaviorRecord/listBehavior`
-- `GET` `/calendar/api/newBehaviorRecord/listBehaviorAllUseType`
-- `GET` `/calendar/api/newBehaviorRecord/listBehaviorByMode`
-- `GET` `/calendar/api/newBehaviorRecord/listBehaviorTree`
-- `GET` `/calendar/api/newBehaviorRecord/listDorm`
-- `GET` `/calendar/api/newBehaviorRecord/listDormInfo`
-- `POST` `/calendar/api/newBehaviorRecord/listGroupRecord`
-- `POST` `/calendar/api/newBehaviorRecord/listStudent`
-- `GET` `/calendar/api/newBehaviorRecord/listStudentBadge`
-- `GET` `/calendar/api/newBehaviorRecord/listTag`
-- `GET` `/calendar/api/newBehaviorRecord/revokeTier` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/saveOrUpdateGroupRecord` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/studentBehaviorDetail`
-- `GET` `/calendar/api/newBehaviorRecord/studentTierDetail`
-- `POST` `/calendar/api/newBehaviorRecord/updateBadgeConfig` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/updateConfig` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/updateRecord` ⚠️写
-- `POST` `/calendar/api/newBehaviorRecord/write/group` ⚠️写
-
-**`behaviorRecord`**
-- `未知` `/calendar/api/behaviorRecord/aiAssistant`
-- `未知` `/calendar/api/behaviorRecord/allStu/behavior/download/template`
-- `未知` `/calendar/api/behaviorRecord/allStu/behavior/downloadFailData`
-- `POST` `/calendar/api/behaviorRecord/allStu/behavior/import` ⚠️写
-- `POST` `/calendar/api/behaviorRecord/allStu/behavior/importCount` ⚠️写
-- `POST` `/calendar/api/behaviorRecord/approval`
-- `GET` `/calendar/api/behaviorRecord/approval/detail`
-- `POST` `/calendar/api/behaviorRecord/create` ⚠️写
-- `POST` `/calendar/api/behaviorRecord/editRecord` ⚠️写
-- `GET` `/calendar/api/behaviorRecord/getOwnChildrenInfo`
-- `GET` `/calendar/api/behaviorRecord/getUserSubject`
-- `GET` `/calendar/api/behaviorRecord/groupAnalyze`
-- `未知` `/calendar/api/behaviorRecord/groupAnalyze/export` ⚠️写
-- `POST` `/calendar/api/behaviorRecord/groupStatistics`
-- `GET` `/calendar/api/behaviorRecord/listBehaviorType`
-- `GET` `/calendar/api/behaviorRecord/listDorms`
-- `GET` `/calendar/api/behaviorRecord/listGrades`
-- `POST` `/calendar/api/behaviorRecord/listStudentRecord`
-- `GET` `/calendar/api/behaviorRecord/listStudents`
-- `GET` `/calendar/api/behaviorRecord/listSubjectByStage`
-- `POST` `/calendar/api/behaviorRecord/pendingReview/list`
-- `POST` `/calendar/api/behaviorRecord/saveOrUpdatePunishment` ⚠️写
-- `POST` `/calendar/api/behaviorRecord/showBehaviorRecordDetail`
-- `POST` `/calendar/api/behaviorRecord/showLatestRecord`
-- `POST` `/calendar/api/behaviorRecord/showMyPending`
-- `POST` `/calendar/api/behaviorRecord/showTypeStatistics`
-- `POST` `/calendar/api/behaviorRecord/update` ⚠️写
-
-**`statistics`**
-- `POST` `/calendar/api/statistics/allStu/behavior`
-- `GET` `/calendar/api/statistics/allStu/behavior/export` ⚠️写
-- `GET` `/calendar/api/statistics/behavior`
-- `GET` `/calendar/api/statistics/behavior/punishment/detail`
-- `POST` `/calendar/api/statistics/behaviorSummary/export/data` ⚠️写
-- `POST` `/calendar/api/statistics/behaviorSummary/record/batch` ⚠️写
-- `POST` `/calendar/api/statistics/behaviorSummary/record/page`
-- `POST` `/calendar/api/statistics/distributionChartDetails/activeBehavior`
-- `POST` `/calendar/api/statistics/dorm/allStu/behavior`
-- `POST` `/calendar/api/statistics/dorm/analyze/allStu/behavior`
-- `POST` `/calendar/api/statistics/dorm/analyze/overview`
-- `POST` `/calendar/api/statistics/dorm/analyze/rank`
-- `POST` `/calendar/api/statistics/dorm/analyze/student/rank`
-- `GET` `/calendar/api/statistics/dorm/behavior`
-- `GET` `/calendar/api/statistics/group/behaviorAnalyze`
-- `GET` `/calendar/api/statistics/stu/behaviorAnalyze`
-
-**`dormitoryBehavior`**
-- `GET` `/calendar/api/dormitoryBehavior/records/batch` ⚠️写
-- `GET` `/calendar/api/dormitoryBehavior/reports/dorms`
-- `GET` `/calendar/api/dormitoryBehavior/reports/students`
-- `GET` `/calendar/api/dormitoryBehavior/students/add-options`
-- `GET` `/calendar/api/dormitoryBehavior/students/context`
-- `GET` `/calendar/api/dormitoryBehavior/students/dorms`
-- `GET` `/calendar/api/dormitoryBehavior/students/page`
-- `GET` `/calendar/api/dormitoryBehavior/students/selection-summary`
-
-**`classBehaviorRecord`**
-- `POST` `/calendar/api/classBehaviorRecord/allStu/behavior`
-- `未知` `/calendar/api/classBehaviorRecord/allStu/behavior/export` ⚠️写
-- `GET` `/calendar/api/classBehaviorRecord/approval/detail`
-- `未知` `/calendar/api/classBehaviorRecord/behavior/grade`
-- `POST` `/calendar/api/classBehaviorRecord/create` ⚠️写
-- `GET` `/calendar/api/classBehaviorRecord/listBehavior`
-- `POST` `/calendar/api/classBehaviorRecord/student/write/group` ⚠️写
-
-**`behaviorSku`**
-- `POST` `/calendar/api/behaviorSku/addSku` ⚠️写
-- `POST` `/calendar/api/behaviorSku/addSkuExchange` ⚠️写
-- `GET` `/calendar/api/behaviorSku/listSku`
-- `GET` `/calendar/api/behaviorSku/listSkuExchange`
-- `POST` `/calendar/api/behaviorSku/updateSku` ⚠️写
-- `POST` `/calendar/api/behaviorSku/verifySku` ⚠️写
-
-**`rank`**
-- `GET` `/calendar/api/rank/getLastUploadFieldUrl`
-- `GET` `/calendar/api/rank/getSchoolConfig`
-- `GET` `/calendar/api/rank/listRelatedBehavior`
-- `POST` `/calendar/api/rank/saveOrUpdateRelatedBehavior` ⚠️写
-- `POST` `/calendar/api/rank/saveOrUpdateSchoolConfig` ⚠️写
-
-**`classBehavior`**
-- `未知` `/calendar/api/classBehavior/report/`
-- `未知` `/calendar/api/classBehavior/report/export/jobs/` ⚠️写
-- `POST` `/calendar/api/classBehavior/report/export/v2/jobs` ⚠️写
-
-**`behaviorType`**
-- `GET` `/calendar/api/behaviorType/list`
-
-**`listDormPermission`**
-- `GET` `/calendar/api/listDormPermission`
-
-**`moralEduStatistics`**
-- `GET` `/api/moralEduStatistics/CIOMetric`
-
-**`school`**
-- `GET` `/calendar/api/school/getDormStage`
-
-**`setStudentDormStatus`**
-- `POST` `/calendar/api/setStudentDormStatus` ⚠️写
-
-**`studentBehavior`**
-- `未知` `/calendar/api/studentBehavior/analysis/`
-
-**`studentManagement`**
-- `GET` `/calendar/api/studentManagement/dorms`
-
-### 升学与招生（98）
+### 升学与招生（99）
 
 **`enrolmentPlan`**
+- `GET` `/api/enrolmentPlan`
 - `GET` `/api/enrolmentPlan/acl`
 - `GET` `/api/enrolmentPlan/alreadyStages`
 - `POST` `/api/enrolmentPlan/alumnusList`
@@ -1623,6 +1620,7 @@
 - `POST` `/api/user/relation/updateIsPublic` ⚠️写
 
 **`studentManagement`**
+- `GET` `/calendar/api/studentManagement`
 - `GET` `/calendar/api/studentManagement/grade`
 - `POST` `/calendar/api/studentManagement/listStudentDetail`
 - `GET` `/calendar/api/studentManagement/parent/grade`
@@ -1682,9 +1680,6 @@
 
 **`checkPermissions`**
 - `GET` `/api/checkPermissions`
-
-**`chooseByRole`**
-- `GET` `/course/api/chooseByRole`
 
 **`currentIdentity`**
 - `GET` `/api/currentIdentity`
@@ -1752,7 +1747,7 @@
 **`users`**
 - `GET` `/api/users`
 
-### 统计与看板（52）
+### 统计与看板（53）
 
 **`statistics`**
 - `未知` `/api/statistics/college/analyze/rank/export` ⚠️写
@@ -1761,6 +1756,7 @@
 - `未知` `/api/statistics/grade/student/analyze/rank/export` ⚠️写
 - `GET` `/api/statistics/permission`
 - `未知` `/api/statistics/student/analyze/rank/export` ⚠️写
+- `GET` `/calendar/api/statistics`
 - `POST` `/calendar/api/statistics/class/analyze/overview`
 - `POST` `/calendar/api/statistics/class/creator/analyze/rank`
 - `POST` `/calendar/api/statistics/class/grade/analyze/rank`
@@ -1989,9 +1985,10 @@
 **`updateStudentAttendanceDetail`**
 - `POST` `/calendar/api/updateStudentAttendanceDetail` ⚠️写
 
-### 其他（27）
+### 其他（28）
 
 **`habit`**
+- `未知` `/evaluation/api/habit`
 - `GET` `/evaluation/api/habit/deletedHabitGradeExtends` ⚠️写
 - `GET` `/evaluation/api/habit/listHabitTree`
 - `POST` `/evaluation/api/habit/saveHabitGradeExtends` ⚠️写
@@ -2002,9 +1999,6 @@
 
 **`checkCCA`**
 - `GET` `/calendar/api/checkCCA`
-
-**`chooseBySubject`**
-- `POST` `/course/api/chooseBySubject`
 
 **`current`**
 - `GET` `/iot/api/current/userNew`
@@ -2035,6 +2029,9 @@
 
 **`query`**
 - `GET` `/calendar/api/query/statusStatistic`
+
+**`rank`**
+- `GET` `/calendar/api/rank`
 
 **`saveCommonPhrases`**
 - `POST` `/calendar/api/saveCommonPhrases` ⚠️写
@@ -2186,7 +2183,7 @@
 **`upload_link`**
 - `GET` `/api/upload_link` ⚠️写
 
-### 阅读（20）
+### 阅读（19）
 
 **`read`**
 - `GET` `/api/read/detailById`
@@ -2198,10 +2195,6 @@
 **`export`**
 - `未知` `/api/export/readData/statistics` ⚠️写
 - `未知` `/api/export/readRecord` ⚠️写
-
-**`messageCenter`**
-- `POST` `/api/messageCenter/read`
-- `GET` `/api/messageCenter/readAll`
 
 **`readRecord`**
 - `GET` `/api/readRecord`
@@ -2221,6 +2214,9 @@
 
 **`getMyReadStatistics`**
 - `GET` `/api/getMyReadStatistics`
+
+**`messageCenter`**
+- `POST` `/api/messageCenter/read`
 
 **`readBooks`**
 - `GET` `/api/readBooks/byRange`
@@ -2308,13 +2304,11 @@
 **`tags`**
 - `GET` `/api/tags`
 
-### 消息与通知（11）
+### 消息与通知（9）
 
 **`messageCenter`**
 - `GET` `/api/messageCenter/count`
 - `GET` `/api/messageCenter/page`
-- `未知` `/api/messageCenter/pageAll`
-- `GET` `/message/api/messageCenter/v2/page`
 
 **`alarm`**
 - `未知` `/api/alarm` ⚠️写
