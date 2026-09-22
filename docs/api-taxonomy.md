@@ -89,7 +89,7 @@
 - `GET /api/chapter/getMyFilePageByChapterId`
 - … 另有 162 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 70 个（如 `openLesson`、`addCourseResources`、`addQualityLesson`、`addResourcesFile`、`chapter`、`group`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 70 个（如 `openLesson`、`addCourseResources`、`addQualityLesson`、`addResourcesFile`、`chapter`、`group`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -115,7 +115,7 @@
 - `POST /api/elementResult/getLock`
 - … 另有 139 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 85 个（如 `auditStatistics`、`audit_list`、`addGraduationCriteria`、`evaluationPlanDataBoard`、`copyGraduationCriteria`、`deleteGraduationCriteria`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 85 个（如 `auditStatistics`、`audit_list`、`addGraduationCriteria`、`evaluationPlanDataBoard`、`copyGraduationCriteria`、`deleteGraduationCriteria`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -141,7 +141,7 @@
 - `GET /api/feedback/moduleList`
 - … 另有 106 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 29 个（如 `feedbackList`、`auditFeedbackDetail`、`deleteById`、`importData`、`importNum`、`insertDownloadWeekFeedbackPdfJob`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 29 个（如 `feedbackList`、`auditFeedbackDetail`、`deleteById`、`importData`、`importNum`、`insertDownloadWeekFeedbackPdfJob`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -167,7 +167,7 @@
 - `GET /calendar/api/behaviorRecord/listBehaviorType`
 - … 另有 84 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 44 个（如 `export`、`import`、`importCount`、`create`、`editRecord`、`export`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 44 个（如 `export`、`import`、`importCount`、`create`、`editRecord`、`export`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -193,7 +193,7 @@
 - `GET /api/capture/getUploadPhotoPermission`
 - … 另有 74 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 52 个（如 `addCaptureLabelRelation`、`addRegularLabel`、`addTypeWorkCaptureRelation`、`auditCapture`、`deleteCaptureById`、`insertBatchItemResult`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 52 个（如 `addCaptureLabelRelation`、`addRegularLabel`、`addTypeWorkCaptureRelation`、`auditCapture`、`deleteCaptureById`、`insertBatchItemResult`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -219,7 +219,7 @@
 - `GET /api/enrolmentPlan/applyRecordDownloadStudent`
 - … 另有 73 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 14 个（如 `batchDeleteTargetSchool`、`deleteSpecialtyById`、`deleteTargetSchool`、`exportTargetSchoolByTeacher`、`addOrUpdate`、`batchUpload`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 14 个（如 `batchDeleteTargetSchool`、`deleteSpecialtyById`、`deleteTargetSchool`、`exportTargetSchoolByTeacher`、`addOrUpdate`、`batchUpload`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -245,7 +245,7 @@
 - `GET /api/currentUser` ★
 - … 另有 48 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 7 个（如 `export_student`、`saveSchoolConfig`、`save`、`updateUserHobby`、`updateIsPublic`、`list`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 7 个（如 `export_student`、`saveSchoolConfig`、`save`、`updateUserHobby`、`updateIsPublic`、`list`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -271,7 +271,7 @@
 - `GET /api/getLearningOverviewConfig`
 - … 另有 31 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 10 个（如 `saveModuleContentOfStuBoard`、`export`、`export`、`export`、`export`、`export`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 10 个（如 `saveModuleContentOfStuBoard`、`export`、`export`、`export`、`export`、`export`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -297,7 +297,7 @@
 - `GET /api/homeSchool/currentSemesterId`
 - … 另有 27 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 11 个（如 `addOrUpdate`、`addOrUpdateWeek`、`delete`、`deleteDay`、`deleteWeek`、`sendDayPlanMessage`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 11 个（如 `addOrUpdate`、`addOrUpdateWeek`、`delete`、`deleteDay`、`deleteWeek`、`sendDayPlanMessage`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -323,7 +323,7 @@
 - `POST /calendar/api/statistics/listAttendanceStatistics`
 - … 另有 13 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 10 个（如 `update`、`batchUpdateStudentAttendanceDetail`、`exportStudentClassAttendanceStatistics`、`updateStudentAttendanceDetail`、`setEnteringLeavingSetting`、`updateAttendance`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 10 个（如 `update`、`batchUpdateStudentAttendanceDetail`、`exportStudentClassAttendanceStatistics`、`updateStudentAttendanceDetail`、`setEnteringLeavingSetting`、`updateAttendance`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -349,7 +349,7 @@
 - `未知 /evaluation/api/habit`
 - … 另有 3 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 13 个（如 `updateDescription`、`updatePersonDefault`、`deleteCommonPhrasesById`、`deleteCommonPhrasesClassificationById`、`count`、`saveCommonPhrases`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 13 个（如 `updateDescription`、`updatePersonDefault`、`deleteCommonPhrasesById`、`deleteCommonPhrasesClassificationById`、`count`、`saveCommonPhrases`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -375,7 +375,7 @@
 - `GET /api/poster/info`
 - … 另有 4 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 11 个（如 `addImpression`、`deleteImpression`、`deletedActivity`、`insertActivity`、`delete`、`create`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 11 个（如 `addImpression`、`deleteImpression`、`deletedActivity`、`insertActivity`、`delete`、`create`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -401,7 +401,7 @@
 - `GET /calendar/api/stuDayExportCode`
 - … 另有 1 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 8 个（如 `new`、`updateImageRotate`、`batchUploadTemplate`、`update_fileName`、`shareFile`、`upload_file`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 8 个（如 `new`、`updateImageRotate`、`batchUploadTemplate`、`update_fileName`、`shareFile`、`upload_file`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -427,7 +427,7 @@
 - `GET /api/readDate`
 - … 另有 3 个只读接口，见 `yungu_api_catalog.md`
 
-⚠️ 写操作 4 个（如 `addReadComment`、`deletedReadComment`、`statistics`、`readRecord`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 4 个（如 `addReadComment`、`deletedReadComment`、`statistics`、`readRecord`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -448,7 +448,7 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 - `GET /api/prefixPrompt/list`
 - `POST /calendar/api/stu/detail/analyzeJSONExplain`
 
-⚠️ 写操作 4 个（如 `createOrEditAITopic`、`update`、`saveAIConversionForTopic`、`batchCreateAIResultByPlanId`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 4 个（如 `createOrEditAITopic`、`update`、`saveAIConversionForTopic`、`batchCreateAIResultByPlanId`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -472,7 +472,7 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 - `GET /api/rule`
 - `GET /api/tags`
 
-⚠️ 写操作 1 个（如 `set_language`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 1 个（如 `set_language`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -492,7 +492,7 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 - `GET /api/project/notice`
 - `GET /course/api/school/getMessageRemainingCount`
 
-⚠️ 写操作 2 个（如 `alarm`、`hurry`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 2 个（如 `alarm`、`hurry`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -506,7 +506,7 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 
 - `POST /api/cancelZan`
 
-⚠️ 写操作 5 个（如 `addLike`、`deletedCommentary`、`deletedLike`、`saveCommentary`、`saveZan`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 5 个（如 `addLike`、`deletedCommentary`、`deletedLike`、`saveCommentary`、`saveZan`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -520,7 +520,7 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 
 - `GET /health/api/health/periodic-review/aiDetail`
 
-⚠️ 写操作 1 个（如 `updateHealthAIAdvice`）—— 本文档与脚本都不会调用它们。
+⚠️ 写操作 1 个（如 `updateHealthAIAdvice`）—— 除 `submit` 用到的那一个已实测端点外，脚本不会调用任何写操作接口。
 
 ---
 
@@ -529,4 +529,5 @@ AI 应用/Agent、AI 备课、AI 批改、AI 话题
 1. **路径语义分类**，不代表接口真实行为。
 2. **参数与响应未逐个验证** —— 只有 `docs/api-tasks.md` / `docs/api-schedule.md` 里的接口是逐字段核对过的。
 3. **权限未逐个测**。只有上表 ★ 的 13 个确认学生账号可调；其余多为教师端/管理端。
-4. **写操作一律未调用**（安全红线）。
+4. **写操作仅实现了一个**：`/api/submitAchievementSendMessage`（学生提交成果），默认 dry-run、需 `--yes`、需校方授权。
+   其余 380 个写接口脚本一律不调用。

@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-yungu_tasks.py — task.yungu.org 剩余任务 / 课表读取与对外开放接口侦察
+yungu_tasks.py — task.yungu.org 任务/课表/评论读取、接口侦察，以及（可选的）成果提交
 
-仅用于读取**你自己账号**的数据；不含任何鉴权绕过。
+读取类操作只访问**你自己账号**的数据；不含任何鉴权绕过。
+提交类操作（submit）**默认不发送任何请求**，且需校方授权 —— 详见 docs/api-submit.md。
 
-四个子命令
+六个子命令
   tasks     读取并打印「剩余任务」（默认 inCludeTaskStatus=0，即未完成）
   timetable 读取并打印课表（「日程」同源子应用，可指定周）
+  comments  读取任务评论（含教师点评），并标明每条评论属于哪个任务
+  submit    上传成果文件并提交任务（默认 dry-run；需 --yes 才真的写）
   probe     用你自己的会话探测各候选接口，报告 code / message / 登录态
   recon     枚举站点对外开放的 /api/ 接口（从公开 CDN 的前端 bundle 静态提取）
 
@@ -32,6 +35,10 @@ yungu_tasks.py — task.yungu.org 剩余任务 / 课表读取与对外开放接�
   python3 yungu_tasks.py timetable                   # 本周课表
   python3 yungu_tasks.py timetable --week 1          # 下周
   python3 yungu_tasks.py timetable --all             # 连作息项（起床/出寝/整理）一起列
+  python3 yungu_tasks.py comments                      # 剩余任务的评论
+  python3 yungu_tasks.py comments --teacher-only       # 只看老师/他人发的
+  python3 yungu_tasks.py submit --task 91958 --file hw.pdf          # dry-run，不发
+  python3 yungu_tasks.py submit --task 91958 --file hw.pdf --yes    # 真的提交（需授权）
   python3 yungu_tasks.py probe                       # 各候选接口返回一览
   python3 yungu_tasks.py recon --bundle-url https://cdn-assets.yungu.org/task/<版本>/index.js
 
@@ -84,6 +91,7 @@ yungu_tasks.py — task.yungu.org 剩余任务 / 课表读取与对外开放接�
 import argparse
 import datetime
 import json
+import mimetypes
 import os
 import re
 import sys
@@ -91,6 +99,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 
 BASE = os.environ.get("YUNGU_BASE", "https://task.yungu.org").rstrip("/")
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -566,6 +575,163 @@ def cmd_comments(args):
     return 0
 
 
+# --------------------------------------------------------------------------- submit
+# 下面三个端点与全部字段，来自 2026-09-22 在**教师专门创建的测试任务**上的实测抓包
+# （上传→提交→回读全链路验证：achievementStatus 1 → 4）。
+# 不是从接口名推测的 —— 推测会选 /api/capture/submitCapture，那是教师端发布任务用的。
+UPLOAD_ENDPOINT = "/api/upload_file/new"
+SUBMIT_ENDPOINT = "/api/submitAchievementSendMessage"
+OSS_BUCKET = "yungu-common"
+# achievementStatus 实测取值：1=未交 3=待修改 4=已交 2=教师已确认
+SUBMITTABLE = (1, 3)
+
+
+def _multipart(field, filename, data, content_type):
+    boundary = "----YunguUpload" + uuid.uuid4().hex
+    head = ('--%s\r\nContent-Disposition: form-data; name="%s"; filename="%s"\r\n'
+            'Content-Type: %s\r\n\r\n' % (boundary, field, filename, content_type)).encode("utf-8")
+    return boundary, head + data + ("\r\n--%s--\r\n" % boundary).encode("utf-8")
+
+
+def raw_post(url, body_bytes, headers, timeout=60):
+    """multipart 上传用的底层请求（http_request 只发 JSON，不能复用）。"""
+    req = urllib.request.Request(url, data=body_bytes, method="POST", headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.status, _decode(r.read(), r.headers)
+    except urllib.error.HTTPError as e:
+        return e.code, _decode(e.read(), e.headers)
+    except Exception as e:  # noqa: BLE001
+        return 0, "<network error: %s>" % e
+
+
+def upload_file(path, cookie):
+    """上传一个成果文件，返回 (fileId, 说明)。"""
+    name = os.path.basename(path)
+    with open(path, "rb") as fh:
+        data = fh.read()
+    mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
+    ts = int(time.time() * 1000)
+    params = {"fileName": name, "bucketName": OSS_BUCKET, "fileSize": str(len(data)),
+              "fileType": mime, "fileUrl": "taskFile/%d_%s" % (ts, name),
+              "percent": "100", "uuid": str(ts)}
+    url = BASE + UPLOAD_ENDPOINT + "?" + urllib.parse.urlencode(params)
+    boundary, body = _multipart("files", name, data, mime)
+    headers = {
+        "User-Agent": UA, "Cookie": cookie,
+        "Content-Type": "multipart/form-data; boundary=%s" % boundary,
+        "Referer": BASE + "/umiTask", "X-Requested-With": "XMLHttpRequest",
+        "Accept": "application/json, text/plain, */*",
+    }
+    st, text = raw_post(url, body, headers)
+    pl = parse_json(text)
+    if isinstance(pl, dict) and pl.get("status") is True and isinstance(pl.get("content"), dict):
+        fid = pl["content"].get("fileId")
+        if fid:
+            return fid, "上传成功 fileId=%s" % fid
+    return None, "上传失败（HTTP %s）：%s" % (st, (text or "")[:200])
+
+
+def cmd_submit(args):
+    """提交任务成果。默认 dry-run 只打印请求，必须 --yes 才真的写。"""
+    if not session_required(args):
+        return 2
+    if not args.task:
+        print("!! 必须指定 --task <taskPublishId>")
+        return 2
+    args.task = int(str(args.task).split(",")[0].strip())
+    if not args.file and not args.text:
+        print("!! 至少要给 --file 或 --text")
+        return 2
+    if not args.yes:
+        print("== dry-run（未发送任何请求；确认无误后加 --yes）==\n")
+
+    c, err = fetch_achievement(args.cookie, args.task)
+    if not c:
+        print("!! 读任务现状失败：%s" % err)
+        return 2
+    me = (c.get("achievementUserResponse") or {}).get("userId")
+    st_now = c.get("achievementStatus")
+    print("任务：%s  (taskPublishId=%s)" % (c.get("taskTitle"), c.get("taskPublishId")))
+    print("  courseId=%s  taskUserRelationId=%s  当前 achievementStatus=%s  要求附件=%s"
+          % (c.get("courseId"), c.get("taskUserRelationId"), st_now, c.get("needEnclosure")))
+    if st_now not in SUBMITTABLE:
+        print("\n!! 当前状态 %s 不可提交（已交或教师已确认）。" % st_now)
+        print("   重交需教师「退回修改」把状态打回 3。脚本不会替你绕过这个限制。")
+        return 2
+    if c.get("needEnclosure") and not args.file:
+        print("\n!! 该任务要求附件（needEnclosure=true），但没给 --file。")
+        return 2
+    # 先校验身份字段齐全，再决定要不要上传 —— 否则会先在学校存储里留下孤儿文件
+    missing = [k for k, v in (("courseId", c.get("courseId")),
+                              ("taskPublishId", c.get("taskPublishId")),
+                              ("taskUserRelationId", c.get("taskUserRelationId")),
+                              ("studentId(我的 userId)", me)) if v is None]
+    if missing:
+        print("\n!! 现状响应缺少 %s，拒绝继续（尚未上传任何文件）。" % ", ".join(missing))
+        print("   可能站点改版。用 `probe --endpoint /api/student/getAchievementDetail` 核对结构。")
+        return 2
+
+    file_ids = []
+    for p in args.file or []:
+        if not args.yes:
+            print("  [dry-run] 将上传 %s → POST %s" % (p, UPLOAD_ENDPOINT))
+            file_ids.append("<fileId>")
+            continue
+        fid, msg = upload_file(p, args.cookie)
+        print("  %s : %s" % (p, msg))
+        if not fid:
+            return 2
+        file_ids.append(fid)
+        time.sleep(args.sleep)
+    existing = [f.get("fileId") for f in (c.get("fileModelList") or []) if f.get("fileId")]
+    payload_files = file_ids if args.only_new else list(dict.fromkeys(existing + file_ids))
+
+    payload = {"courseId": c.get("courseId"), "fileList": payload_files,
+               "studentIds": [me], "teamList": None,
+               "taskPublishId": c.get("taskPublishId"),
+               "taskUserRelationId": c.get("taskUserRelationId"),
+               "textStatus": args.text_status}
+    # 必填字段缺任何一个都不发 —— 残缺 payload 会被服务端当成正常请求处理
+    missing = [k for k in ("courseId", "taskPublishId", "taskUserRelationId")
+               if payload.get(k) is None] + (["studentIds"] if not me else [])
+    if missing:
+        print("\n!! 现状响应缺少必填字段 %s，拒绝提交（不发送残缺 payload）。" % ", ".join(missing))
+        print("   可能站点改版。用 `probe --endpoint /api/student/getAchievementDetail` 核对结构。")
+        return 2
+    print("\n将发送：POST %s" % SUBMIT_ENDPOINT)
+    print("  " + json.dumps(payload, ensure_ascii=False))
+    if args.only_new:
+        print("  （--only-new：不带之前已上传的附件 %s）" % (existing or "无"))
+    if args.text:
+        print("  注意：--text 暂不参与提交。纯文字提交的 textStatus 取值未实测，不做猜测。")
+    if not args.yes:
+        print("\n[dry-run] 未发送。加 --yes 才会真的提交；提交后学生侧无法自助撤回。")
+        return 0
+
+    if not args.skip_confirm:
+        print("\n⚠️  学生侧没有自助撤回接口，提交后只能请教师「退回修改」。")
+        if input("   确认提交？输入 yes 继续：").strip().lower() != "yes":
+            print("   已取消，未发送任何请求。")
+            return 0
+
+    pl, note, st, text = call(SUBMIT_ENDPOINT, args.cookie, method="POST", body=payload)
+    print("\n提交响应：%s" % note)
+    time.sleep(args.sleep)
+    c2, err2 = fetch_achievement(args.cookie, args.task)
+    if c2:
+        print("回读校验：achievementStatus %s → %s  附件数 %d  achievementId=%s"
+              % (st_now, c2.get("achievementStatus"), len(c2.get("fileModelList") or []),
+                 c2.get("achievementId")))
+        if c2.get("achievementStatus") in (2, 4):
+            print("✅ 提交成功")
+            return 0
+        print("❌ 状态未变化（%s）" % (err2 or "回读正常但状态没动"))
+        return 2
+    print("❌ 回读失败：%s" % err2)
+    return 2
+
+
 # --------------------------------------------------------------------------- probe
 
 def cmd_probe(args):
@@ -695,7 +861,7 @@ def resolve_cookie(args):
 
 def main():
     ap = argparse.ArgumentParser(description="task.yungu.org 剩余任务 / 课表读取与接口侦察")
-    ap.add_argument("command", choices=["tasks", "timetable", "comments", "probe", "recon"])
+    ap.add_argument("command", choices=["tasks", "timetable", "comments", "submit", "probe", "recon"])
     ap.add_argument("--cookie", help="Cookie 请求头，原样粘贴")
     ap.add_argument("--cookie-file", help="存放 Cookie 请求头的文件")
     ap.add_argument("--status", default="0",
@@ -703,7 +869,18 @@ def main():
     ap.add_argument("--page-size", type=int, default=50)
     ap.add_argument("--overdue", action="store_true",
                     help="tasks 用：只列出逾期任务（ifTimeout=true）")
-    ap.add_argument("--task", help="comments 用：只查指定任务，逗号分隔的 taskPublishId")
+    ap.add_argument("--task", help="comments/submit 用：taskPublishId（comments 可逗号分隔；submit 只取第一个）")
+    ap.add_argument("--file", action="append",
+                    help="submit 用：要上传的成果文件，可重复")
+    ap.add_argument("--text", help="submit 用：预留的文字成果（当前仅记录，不参与提交）")
+    ap.add_argument("--only-new", action="store_true",
+                    help="submit 用：不带之前已上传但未提交的附件（默认会合并，与应用行为一致）")
+    ap.add_argument("--text-status", type=int, default=0,
+                    help="submit 用：textStatus，实测有附件提交时为 0")
+    ap.add_argument("--yes", action="store_true",
+                    help="submit 用：真的发送（缺省只 dry-run 打印请求）")
+    ap.add_argument("--skip-confirm", action="store_true",
+                    help="submit 用：跳过交互式二次确认（配合 --yes；不建议）")
     ap.add_argument("--teacher-only", action="store_true",
                     help="comments 用：过滤掉自己发的，只看老师/他人评论")
     ap.add_argument("--show-empty", action="store_true",
@@ -728,7 +905,7 @@ def main():
     args = ap.parse_args()
     args.cookie = resolve_cookie(args)
     return {"tasks": cmd_tasks, "timetable": cmd_timetable, "comments": cmd_comments,
-            "probe": cmd_probe, "recon": cmd_recon}[args.command](args)
+            "submit": cmd_submit, "probe": cmd_probe, "recon": cmd_recon}[args.command](args)
 
 
 if __name__ == "__main__":

@@ -34,10 +34,13 @@ python3 yungu_tasks.py timetable    # 看本周课表
 | `tasks` | 读「剩余任务」列表 + 计数 | 是（2 个只读接口） |
 | `timetable` | 读「课表」（周视图） | 是（2 个只读接口） |
 | `comments` | 读**任务评论**（含教师点评），标明归属任务 | 是（每任务 1 个只读接口） |
+| `submit` | **上传成果并提交任务** | 默认不发；`--yes` 才写（需校方授权） |
 | `probe` | 探测候选接口的 `code`/`message`/登录态 | 是（只读） |
 | `recon` | 枚举全站对外开放的 `/api/` 接口 | 是（只读，下载前端 bundle） |
 
-> 脚本**只发只读查询**（GET / 空 body 的查询类 POST），**不含任何提交、修改、删除操作**。
+> 除 `submit` 外，脚本只发只读查询（GET / 空 body 的查询类 POST）。
+> `submit` **默认 dry-run 一个字节都不发**，必须 `--yes` 才会真的写入；
+> 它是本项目唯一的写操作入口，**使用前需确认持有校方授权**，契约见 `docs/api-submit.md`。
 
 ---
 
@@ -201,7 +204,59 @@ python3 yungu_tasks.py comments --task 89939,90145 --json
 
 ---
 
-## 6. `probe` — 接口探测
+## 6. `submit` — 提交任务成果（唯一的写操作）
+
+```bash
+# 先看：默认 dry-run，不发任何请求
+python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf
+```
+
+```
+== dry-run（未发送任何请求；确认无误后加 --yes）==
+
+任务：test homework  (taskPublishId=91958)
+  courseId=18349  taskUserRelationId=4458494  当前 achievementStatus=1  要求附件=True
+  [dry-run] 将上传 ./hw.pdf → POST /api/upload_file/new
+
+将发送：POST /api/submitAchievementSendMessage
+  {"courseId": 18349, "fileList": [11006958, "<fileId>"], "studentIds": [<student-id>],
+   "teamList": null, "taskPublishId": 91958, "taskUserRelationId": 4458494, "textStatus": 0}
+
+[dry-run] 未发送。加 --yes 才会真的提交；提交后学生侧无法自助撤回。
+```
+
+### 选项
+
+| 选项 | 说明 |
+|---|---|
+| `--task <id>` | 必填，`taskPublishId` |
+| `--file <路径>` | 要上传的成果文件，可重复 |
+| `--yes` | 真的发送。**缺省只 dry-run** |
+| `--only-new` | 只带本次文件，不合并历史已上传附件（默认会合并，与应用行为一致） |
+| `--text-status N` | `textStatus`，实测有附件提交时为 `0` |
+| `--skip-confirm` | 跳过交互二次确认（不建议） |
+| `--sleep` / `--max-requests` | 沿用全局限流 |
+
+### ⚠️ 提交不可自助撤回
+
+学生侧**没有撤回接口**。提交后只能请教师「退回修改」（状态回到 `3`）才能重交。
+所以脚本按这个顺序设卡，**每一步都在写入之前**：
+
+1. 状态不在 `{1=未交, 3=待修改}` → 拒绝（不会替你绕过教师退回机制）
+2. 任务要求附件但没给 `--file` → 拒绝
+3. 身份字段缺任何一个 → **在上传之前**拒绝（避免在学校存储里留孤儿文件）
+4. 无 `--yes` → 只打印 payload
+5. 有 `--yes` 无 `--skip-confirm` → 要求交互输入 `yes`
+6. 提交后**回读** `achievementStatus` 断言真的变了才报成功
+
+### 为什么不能用 `submitCapture`
+
+看接口名会以为提交走 `/api/capture/submitCapture` —— **那是教师端发布任务用的**。
+学生提交实测是 `POST /api/submitAchievementSendMessage`。完整契约与抓包过程见 `docs/api-submit.md`。
+
+---
+
+## 7. `probe` — 接口探测
 
 看各候选接口到底返回什么，用于人工判断/排查。
 
@@ -227,7 +282,7 @@ endpoint                                       HTTP   结果
 
 ---
 
-## 7. `recon` — 枚举全站接口
+## 8. `recon` — 枚举全站接口
 
 ```bash
 python3 yungu_tasks.py recon
@@ -247,7 +302,7 @@ python3 yungu_tasks.py recon
 
 ---
 
-## 8. 全局选项
+## 9. 全局选项
 
 ### 会话（Cookie）
 
@@ -275,13 +330,14 @@ YUNGU_COOKIE="SESSION=fake" python3 yungu_tasks.py tasks
 
 ---
 
-## 9. 退出码
+## 10. 退出码
 
 | 码 | 含义 |
 |---|---|
 | `0` | 成功 |
 | `1` | `recon` 拿不到 bundle 地址 / 下载失败 |
-| `2` | 缺会话、Cookie 文件读不了、或接口调用失败（未登录 / 业务异常） |
+| `2` | 缺会话、Cookie 文件读不了、接口调用失败，或 `submit` 被前置校验拒绝 |
+| 其它 | `submit` 提交后回读状态未变化时返回 `2` |
 
 可用于脚本串联：
 
@@ -291,7 +347,7 @@ python3 yungu_tasks.py tasks --json > /tmp/t.json || echo "取任务失败（见
 
 ---
 
-## 10. 常见问题
+## 11. 常见问题
 
 ### `!! 需要会话才能读取任务数据`
 
@@ -318,7 +374,7 @@ Cookie 过期（有效期约 **1–2 周**），重新从浏览器复制一份�
 
 ---
 
-## 11. 内部结构（便于自己改）
+## 12. 内部结构（便于自己改）
 
 ### 函数职责
 
@@ -336,7 +392,8 @@ Cookie 过期（有效期约 **1–2 周**），重新从浏览器复制一份�
 | `week_window(offset, date)` | 算周一日期与毫秒时间窗 |
 | `resolve_cookie(args)` | 四级会话来源解析 |
 | `fetch_achievement(cookie, taskPublishId)` | 取任务成果详情（含评论），**内部走 POST + JSON body** |
-| `cmd_tasks` / `cmd_timetable` / `cmd_comments` / `cmd_probe` / `cmd_recon` | 五个子命令 |
+| `upload_file(path, cookie)` | 上传成果文件，返回 `fileId`（multipart，字段名 `files`） |
+| `cmd_tasks` / `cmd_timetable` / `cmd_comments` / `cmd_submit` / `cmd_probe` / `cmd_recon` | 六个子命令 |
 
 ### 关键常量
 
@@ -353,7 +410,7 @@ DERIVED_STATUS      = {...}   # (id, 是否逾期) -> 六态标签
 
 ---
 
-## 12. 加一个新接口/新子命令
+## 13. 加一个新接口/新子命令
 
 按 §10 的结构照抄即可，套路是固定的：
 
@@ -381,13 +438,14 @@ DERIVED_STATUS      = {...}   # (id, 是否逾期) -> 六态标签
 
 ---
 
-## 13. 相关文档
+## 14. 相关文档
 
 | 文件 | 内容 |
 |---|---|
 | `docs/api-tasks.md` | 任务接口契约（参数、49 字段、状态口径、**评论接口**、解析代码） |
 | `docs/api-schedule.md` | 日程/课表接口契约（时间窗算法、65 字段、解析代码） |
-| `yungu_api_catalog.md` | 1345 个接口全量目录（标注方法与写操作） |
+| `docs/api-submit.md` | **提交成果接口契约**（上传→提交→回读，含撤回边界） |
+| `yungu_api_catalog.md` | 1335 个接口全量目录（标注方法与写操作） |
 | `docs/api-taxonomy.md` | 接口功能分类：19 个功能域各能干什么 |
 | `docs/recon-method.md` | API 侦察方法：静态提取 + 动态 hook 的完整配方 |
 | `README-yungu.md` | 项目总览：侦察过程、发现、注意事项 |
