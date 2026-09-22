@@ -420,12 +420,68 @@ if __name__ == "__main__":
 
 ## 6. 其他接口（未深度验证）
 
+### 6.1 `GET /api/getMixedPublishDetail` — 任务详情（作业正文在这里）
+
+```
+GET /api/getMixedPublishDetail?taskPublishId=91509
+Cookie: <你的会话>
+```
+
+**这是唯一能拿到「作业正文」的接口**，与 §5 的 `getAchievementDetail` 分工不同：
+
+| | `getMixedPublishDetail` | `student/getAchievementDetail` |
+|---|---|---|
+| 方法 | **GET**（query 传 `taskPublishId`） | POST（JSON body） |
+| 作业正文 `taskContent` / `taskDescription` | ✅ **HTML** | — |
+| 老师的附件 `fileList` | ✅ | — |
+| 我的提交 `fileModelList` | — | ✅ |
+| 教师评论 `feedback` | — | ✅ |
+| 全班名单 `students` | ✅（**含他人隐私**，见下） | — |
+| 授课教师 `mainTeachers` / 班级 `groups` | ✅ | — |
+
+实测字段（`content` 29 个，2026-09-22 于 `taskPublishId=91509`）：
+
+| 字段 | 示例 / 说明 |
+|---|---|
+| `taskTitle` | 任务标题 |
+| `taskContent` / `taskDescription` | **作业正文，HTML**（含 `<img src="https://yungu-public.oss…">` 等图片） |
+| `courseId` / `courseName` | 课程 |
+| `sendTime` / `endTime` | 发布 / 截止时间 |
+| `useTime` | 预计用时（分钟） |
+| `totalScore` | 分值（字符串，如 `"100"`） |
+| `needEnclosure` | 是否要求附件 |
+| `evaluationItemId` | 关联的素养评价项 id |
+| `taskStatusId` / `doTaskStatusId` / `over` | 任务状态 / 我的完成状态 / 是否已结束 |
+| `distributioType` / `ifTiming` / `duty` / `scope` / `auditStatus` | 分发方式等；本样本多为 `null`/`false` |
+| `mainTeachers` | 授课教师列表 |
+| `groups` | 班级/分组 |
+| **`fileList`** | ⚠️ **老师发布的附件**（如「评分标准.pages」）—— **不是**我提交的文件 |
+| **`students`** | ⚠️ **全班名单，含他人隐私**，见下 |
+
+> **我提交的文件在 `getAchievementDetail` 的 `fileModelList`**，不在这里。
+> 早期版本文档把 `fileList` 注成「我提交的文件」，是错的，已修正。
+
+#### ⚠️ `students` 含第三方隐私 —— 请勿扩散或聚合
+
+实测 `students` 是**整个班级的名单**（本样本 47 人），每人的字段：
+
+```
+userId, userName, eName, userAvatar, status, teamId, distributioType,
+message, taskUserRelationId, userFileCount, totalCount, file
+```
+
+- **能看到的**：全班真实姓名、英文名、头像 URL，以及 `status`（谁交了、谁没交 —— 本样本 42 人未交 / 5 人已交）
+- **看不到的**：同学提交的**文件内容**（实测 `file` 对所有同学为空、`userFileCount` 全为 0）
+- **仍然敏感**：这已经是他人的个人信息 + 学业状态。**不要导出、不要汇总、不要发布**
+- 本仓库的文档与脚本**不收集、不存储**这个字段；示例里也从未打印过任何同学姓名
+
+
 | 接口 | 实测结果 |
 |---|---|
 | `GET /api/getTaskList?pageSize=100&pageNum=1` | `status:true, code:0`，`content` 形如 `{ing, beoverdue, complete, taskList:{pageSize,pageNum,total,data}}`。<br>注意它把列表**包在 `taskList` 字段里**，且带 `ing/beoverdue/complete` 三个聚合计数，结构与 `getAllTasks` 不同。`POST` 同样可调。 |
 | `GET /api/getTaskDataCount?pageSize=100&pageNum=1` | `code 9002 参数不能为空`，需其它必填参数 |
 | `POST /api/getDraftTasks` | `code 1001 用户无权限`（学生账号） |
-| `GET /api/getMixedPublishDetail?taskPublishId=89939` | `status:true`。返回任务元信息：`taskTitle` / `taskContent`(HTML) / `courseId` / `courseName` / `sendTime` / `endTime` / `useTime` / `students[19]` / `mainTeachers[2]` / `groups[1]` / `fileList[1]`（我提交的文件）/ `doTaskStatusId` / `taskStatusId` / `needEnclosure` / `over`。<br>**注意它不含评论** —— 评论要调 §5 的 `getAchievementDetail`。 |
+| `GET /api/getMixedPublishDetail?taskPublishId=91509` | `status:true`，`content` 共 29 个字段。见下方专节。 |
 
 ---
 
