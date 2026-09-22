@@ -1,0 +1,20 @@
+# 会话凭据：等同密码，绝不提交
+cookie.txt
+yungu_cookie.txt
+*.cookie
+
+# 原始响应与本地数据（可能含个人数据）
+*.sqlite3
+kb/
+*_raw.json
+raw*.json
+*dump*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 系统
+.DS_Store
