@@ -64,6 +64,17 @@ signature = base64(hmac_sha1(access_secret, string_to_sign))
 
 成功返回 `200` 与 `ETag`。
 
+> ⚠️ **文件名里有空格/中文时的编码陷阱（两处规则不同，实测踩过）**
+>
+> | 位置 | 用什么 key |
+> |---|---|
+> | HTTP 请求路径 | **百分号编码**（`quote(key, safe="/")`） |
+> | 签名的 `CanonicalizedResource` | **未编码的原始 key** |
+>
+> 两边都不编码 → `URL can't contain control characters`（路径直接报错，请求都发不出去）；
+> 两边都编码 → `403 SignatureDoesNotMatch`。
+> 学生的真实文件名常带空格和中文（如 `test homework v2.txt`），不处理等于上传功能废一半。
+
 **③ 注册元数据，拿 `fileId`**
 
 ```
