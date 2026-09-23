@@ -3,6 +3,9 @@ cookie.txt
 yungu_cookie.txt
 *.cookie
 
+# 安全审计报告：含攻击面与复现步骤，绝不提交
+docs/security-audit.md
+
 # 原始响应与本地数据（可能含个人数据）
 *.sqlite3
 kb/

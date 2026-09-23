@@ -233,7 +233,6 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf
 | `--file <路径>` | 要上传的成果文件，可重复 |
 | `--yes` | 真的发送。**缺省只 dry-run** |
 | `--only-new` | 只带本次文件，不合并历史已上传附件（默认会合并，与应用行为一致） |
-| `--drop-file <fileId>` | 从 `fileList` 剔除某个已交附件（可重复）——「删除」= 新版本不再包含它，旧版本仍在历史里 |
 | `--text-status N` | `textStatus`，实测有附件提交时为 `0` |
 | `--resubmit` | 允许对已交/已确认的任务重交（会新建成果版本） |
 | `--skip-confirm` | 跳过交互二次确认（不建议） |
@@ -364,7 +363,9 @@ python3 yungu_tasks.py tasks --json > /tmp/t.json || echo "取任务失败（见
 
 ### `!! 未登录 / 会话失效（code=1000, message=请刷新！）`
 
-Cookie 过期（有效期约 **1–2 周**），重新从浏览器复制一份即可。
+实测 `SESSION` 是**浏览器会话 cookie**（无 `Expires`/`Max-Age` 属性），
+所以**完全关闭浏览器后它就没了**；服务端会话本身的存活时长我**未测**。
+表现就是"过一段时间要重新取一次"——具体多久取决于你是否重启过浏览器。
 
 ### `!! 任务列表调用失败：调用异常（code=1008, ...）`
 
@@ -454,7 +455,7 @@ DERIVED_STATUS      = {...}   # (id, 是否逾期) -> 六态标签
 | `docs/api-tasks.md` | 任务接口契约（参数、49 字段、状态口径、**评论接口**、解析代码） |
 | `docs/api-schedule.md` | 日程/课表接口契约（时间窗算法、65 字段、解析代码） |
 | `docs/api-submit.md` | **提交成果接口契约**（上传→提交→回读，含撤回边界） |
-| `yungu_api_catalog.md` | 1345 个接口全量目录（标注方法与写操作） |
+| `yungu_api_catalog.md` | 1335 个接口全量目录（标注方法与写操作） |
 | `docs/api-taxonomy.md` | 接口功能分类：19 个功能域各能干什么 |
 | `docs/recon-method.md` | API 侦察方法：静态提取 + 动态 hook 的完整配方 |
 | `README-yungu.md` | 项目总览：侦察过程、发现、注意事项 |

@@ -4,7 +4,7 @@
 yungu_tasks.py — task.yungu.org 任务/课表/评论读取、接口侦察，以及（可选的）成果提交
 
 读取类操作只访问**你自己账号**的数据；不含任何鉴权绕过。
-提交类操作（submit）**默认不发送任何请求**，需 `--yes` 才真的写 —— 详见 docs/api-submit.md。
+提交类操作（submit）**默认不发送任何请求**，且需校方授权 —— 详见 docs/api-submit.md。
 
 六个子命令
   tasks     读取并打印「剩余任务」（默认 inCludeTaskStatus=0，即未完成）
@@ -734,8 +734,9 @@ def cmd_submit(args):
         print("!! 必须指定 --task <taskPublishId>")
         return 2
     args.task = int(str(args.task).split(",")[0].strip())
-    if not args.file and not args.text:
-        print("!! 至少要给 --file 或 --text")
+    if not args.file and not args.text and not args.drop_file:
+        print("!! 至少要给 --file / --text / --drop-file 之一")
+        print("   （只想删掉旧的已交文件、不传新文件时，用 --drop-file <fileId>）")
         return 2
     if not args.yes:
         print("== dry-run（未发送任何请求；确认无误后加 --yes）==\n")
@@ -757,9 +758,6 @@ def cmd_submit(args):
         return 2
     if st_now not in SUBMITTABLE:
         print("   ⚠️ --resubmit：当前状态 %s，提交将生成新的成果版本。" % st_now)
-    if c.get("needEnclosure") and not args.file:
-        print("\n!! 该任务要求附件（needEnclosure=true），但没给 --file。")
-        return 2
     # 先校验身份字段齐全，再决定要不要上传 —— 否则会先在学校存储里留下孤儿文件
     missing = [k for k, v in (("courseId", c.get("courseId")),
                               ("taskPublishId", c.get("taskPublishId")),
@@ -792,8 +790,14 @@ def cmd_submit(args):
         payload_files = [fid for fid in payload_files if fid not in dropped]
         print("  （--drop-file：从 fileList 剔除 %d 个 已交文件，%d → %d）"
               % (len(dropped & set(existing)), before, len(payload_files)))
+
+    # 闸门以「最终 fileList」为准，而不是「有没有给 --file」——
+    # 这样「删掉一个旧文件、不传新文件，只提交剩下的」才是合法操作。
     if not payload_files:
-        print("\n!! 剔除后 fileList 为空：该任务需要附件，交空成果没有意义。已中止。")
+        print("\n!! 本次提交的 fileList 为空：既没有保留任何已交文件，也没有新文件。已中止。")
+        if c.get("needEnclosure"):
+            print("   该任务要求附件（needEnclosure=true）。")
+        print("   若确实要交空成果，当前脚本不支持（--text 只记录不提交）。")
         return 2
 
     payload = {"courseId": c.get("courseId"), "fileList": payload_files,
