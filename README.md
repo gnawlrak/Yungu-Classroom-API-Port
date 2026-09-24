@@ -73,6 +73,7 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 | [`docs/api-submit.md`](docs/api-submit.md) | **提交成果**契约（上传→提交→回读，含撤回边界） |
 | [`docs/api-taxonomy.md`](docs/api-taxonomy.md) | 1345 条接口的功能分类（19 个功能域） |
 | [`docs/script.md`](docs/script.md) | 脚本用法：6 个子命令、全部选项、退出码、排错 |
+| [`docs/cookie.md`](docs/cookie.md) | **会话 Cookie 是怎么自动拿到的**：CDP 读 HttpOnly 的完整配方 + 安全含义 |
 | [`docs/recon-method.md`](docs/recon-method.md) | **接口侦察方法**：静态提取 + 浏览器 hook 完整配方 |
 | [`yungu_api_catalog.md`](yungu_api_catalog.md) | 1345 条接口目录 |
 
@@ -93,6 +94,7 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 │   ├── api-submit.md               提交成果契约（唯一的写操作）
 │   ├── api-taxonomy.md             功能分类
 │   ├── script.md                   脚本文档
+│   ├── cookie.md                   会话 Cookie 自动获取配方 + 安全含义
 │   └── recon-method.md             侦察方法
 ├── .gitignore                      排除 cookie.txt / 原始响应 / 数据库
 └── LICENSE                         GPL-3.0

@@ -10,13 +10,14 @@
 ```bash
 cd ~/yungu-tasks
 
-# 首次设置：把浏览器登录后的 Cookie 存成 cookie.txt（600 权限）
-#   F12 → Network → 任一 /api/ 请求 → Headers → Request Headers → 复制 Cookie 整行
+# 首次设置：cookie.txt 由脚本从浏览器自动读取，无需手动粘贴
+#   （早先这里写的是"F12 复制 Cookie 整行"，那句是错的 —— SESSION 是 HttpOnly，
+#     页面的 document.cookie 根本读不到它。真相与复现步骤见 docs/cookie.md）
 # 带守卫：已存在就跳过 —— 重复执行不会覆盖你现有的有效会话
 if [ -s cookie.txt ]; then
-  echo "cookie.txt 已存在，跳过（要更新请手动覆盖）"
+  echo "cookie.txt 已存在，跳过（要更新请见 docs/cookie.md §3）"
 else
-  echo "请先手动创建：echo '你的Cookie' > cookie.txt && chmod 600 cookie.txt"
+  echo "请先按 docs/cookie.md §3 读一次会话（ego-browser + CDP Network.getCookies）"
 fi
 
 python3 yungu_tasks.py tasks        # 看剩余任务
