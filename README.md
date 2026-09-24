@@ -77,6 +77,14 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 | [`docs/recon-method.md`](docs/recon-method.md) | **接口侦察方法**：静态提取 + 浏览器 hook 完整配方 |
 | [`yungu_api_catalog.md`](yungu_api_catalog.md) | 1345 条接口目录 |
 
+### 不懂技术？用这个
+
+[`tools/yungu-cookie-helper/`](tools/yungu-cookie-helper/) 是一个浏览器插件，
+点一下就能把 Cookie 导出到剪贴板或存成 `cookie.txt`，不用碰开发者工具。
+
+它**只**申请了 `*.yungu.org` 的权限，源码无任何网络请求，可以自己打开核对。
+安装与安全须知见该目录的 README。
+
 ---
 
 ## 仓库结构
@@ -87,6 +95,8 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 ├── yungu_api_catalog.md            1345 条接口目录（按功能域→模块）
 ├── yungu_endpoints.json            同上机读版（method/service/module/category/mutating）
 ├── yungu_endpoints_discovered.json recon 实跑输出
+├── tools/
+│   └── yungu-cookie-helper/          一键导出 Cookie 的浏览器插件（不懂技术可用）
 ├── docs/
 │   ├── overview.md                 项目总览
 │   ├── api-tasks.md                任务 + 评论接口契约
