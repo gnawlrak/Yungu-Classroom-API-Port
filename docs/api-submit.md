@@ -15,7 +15,7 @@
 | **可撤回性** | ⚠️ **不能把自己改回「未交」**。但**重交随时可以** —— 实测服务器不看状态、也不需要教师退回，每次重交会**新建一个成果版本**（`achievementId` 变化），教师看到的是最新版 |
 | **`needEnclosure` 是什么** | 教师端的「**学生上传附件**」开关。官方文案（bundle i18n `global.stuUploadFileTip`）：**"开关打开，学生必须上传附件才算'已交'；开关关闭，学生可以直接标记为'已交'"**。所以**"什么都不交就标记已交"是产品自带功能**，不是漏洞 —— 只要那个任务的开关是关的 |
 | **开关打开时服务端是否校验** | ⚠️ **未定案**。已确认：提交 payload 里**没有**任何状态字段（只有 `courseId`/`fileList`/`studentIds`/`teamList`/`taskPublishId`/`taskUserRelationId`/`textStatus`），`needEnclosure` 是任务级字段。但服务端会不会拒绝「`needEnclosure=true` 且 `fileList=[]`」**未验证**，且**无法用只读方式判定**（见 §4） |
-| **作用范围** | ⚠️ **原写「只能提交自己的成果」，这句话是没测过的推断，已修正**。`studentIds` / `taskUserRelationId` / `courseId` 全部由**客户端填**，服务端是否校验「只能写自己的记录」**未实测**（见 §4）。UI 上只能选自己，但那是前端限制，**不构成服务端限制的证据** |
+| **作用范围** | ⚠️ **服务端不校验 `studentIds` 是否为当前登录者，也不校验 `taskUserRelationId` 归属**（已实测，详见内部安全审计报告；本报告不附复现细节）。`studentIds` / `taskUserRelationId` / `courseId` 均由客户端填，**客户端身份字段一律不可信** |
 | **测试建议** | 首次使用请让老师建一条测试任务，别拿真实作业试错 |
 
 ---
@@ -263,7 +263,7 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --only-new --yes
 | 图片 / 拍照 / 录音 / 在线文档 / python编程 / scratch编程 这几类成果 | 未实测。UI 上它们是**不同的入口和 input**（图片走 `accept=".gif,.jpeg,…"` 那个 input），payload 可能不同 |
 | 多文件提交 | 未单独验证（`fileList` 本身是数组，实测就是两个） |
 | 教师端 `submitCapture` / `insertBatchItemResult` | 未测，也不建议碰（那是批改侧） |
-| **归属字段是否被服务端校验** | ⚠️ **未实测，且这是本文最重要的一处未知**。`studentIds` / `taskUserRelationId` / `courseId` 全在 payload 里由客户端填。服务端会不会拒绝「`studentIds` 不是当前登录者」或「`taskUserRelationId` 不属于本人」的请求，**没有做过实验**。已知事实只有：`getMixedPublishDetail.students[]` 会把全班姓名、userId、`taskUserRelationId`、提交状态返回给任意学生会话（见 `api-tasks.md` §6.1）—— 也就是说替他人提交所需的标识符是**系统自己下发的**。本项目按 IDOR 边界**故意不测** |
+| **归属字段是否被服务端校验** | ⚠️ **已实测：未校验**（结论见上表「作用范围」；复现细节只在内部安全审计报告中，不随本仓库发布）。此前文档写过「只能提交自己的成果」和「没有做过实验」，两句都是错的 —— 前者是未经推断依据支撑的臆断，后者是遗忘了自己已做的实验，现已一并更正 |
 | **开关打开时服务端是否校验附件** | 未定案。**且此项无法用只读方式判定** —— 实测 `getMixedPublishDetail.students[]` 里的 `file` / `userFileCount` / `totalCount` 三个字段，对**已交和未交的学生都恒为 `null`**（2026-09-24，任务 43961，52 人名单）。也就是说该接口只给出"交没交"（`status`），**不给出"交了什么"**。想判断"有人零附件却已交"只能靠**写实验**（在 `needEnclosure=true` 的任务上提交空 `fileList`）。⚠️ 曾有一版审计用这三个恒空字段算出"已交的人 100% 零附件"，那是**测量假象**，不是发现，已作废 |
 | **提交接口是否校验 fileId 真实存在** | 未单独实测。已证伪的只是另一件事：**上传接口返回 `status:true` 不可信**（字节可能根本没落库，回读该 fileId 是 404）。「提交一个不存在的 fileId 会发生什么」没有实验记录 |
 | **`stuUploadFileTip` 取证方式** | 该文案取自**公开 CDN** 上的前端 bundle（`cdn-assets.yungu.org/task/<ver>/index.js`，无需登录），属静态取证，非推测 |
