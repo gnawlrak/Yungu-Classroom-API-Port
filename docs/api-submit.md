@@ -11,9 +11,12 @@
 
 | 项 | 说明 |
 |---|---|
-| **授权** | 只作用于**你自己的账号**。首次使用建议让老师建一条测试任务，别拿真实作业试错 |
+| **授权** | 本项目已获校方允许推进。**使用 `submit` 前请确认你持有校方授权**，否则只读功能可用、写功能不要用 |
 | **可撤回性** | ⚠️ **不能把自己改回「未交」**。但**重交随时可以** —— 实测服务器不看状态、也不需要教师退回，每次重交会**新建一个成果版本**（`achievementId` 变化），教师看到的是最新版 |
-| **作用范围** | 只能提交**自己的**成果（`studentIds` 填自己的 userId） |
+| **`needEnclosure` 是什么** | 教师端的「**学生上传附件**」开关。官方文案（bundle i18n `global.stuUploadFileTip`）：**"开关打开，学生必须上传附件才算'已交'；开关关闭，学生可以直接标记为'已交'"**。所以**"什么都不交就标记已交"是产品自带功能**，不是漏洞 —— 只要那个任务的开关是关的 |
+| **开关打开时服务端是否校验** | ⚠️ **未定案**。已确认：提交 payload 里**没有**任何状态字段（只有 `courseId`/`fileList`/`studentIds`/`teamList`/`taskPublishId`/`taskUserRelationId`/`textStatus`），`needEnclosure` 是任务级字段。但服务端会不会拒绝「`needEnclosure=true` 且 `fileList=[]`」**未验证**，且**无法用只读方式判定**（见 §4） |
+| **作用范围** | ⚠️ **原写「只能提交自己的成果」，这句话是没测过的推断，已修正**。`studentIds` / `taskUserRelationId` / `courseId` 全部由**客户端填**，服务端是否校验「只能写自己的记录」**未实测**（见 §4）。UI 上只能选自己，但那是前端限制，**不构成服务端限制的证据** |
+| **测试建议** | 首次使用请让老师建一条测试任务，别拿真实作业试错 |
 
 ---
 
@@ -85,13 +88,28 @@ GET /api/upload_file/new?fileName=<名>&bucketName=<桶>&fileSize=<字节数>
 
 响应 `content.fileId` 即后续提交要用的 id。
 
-**④ 必做：回读校验**
+**④ 必做：回读校验（端点用 `new_download_file`，别用 `preview_file`）**
 
 ```
-GET /api/preview_file?id=<fileId>
+GET /api/new_download_file?id=<fileId>
 ```
 
-返回 `200` 且字节与本地一致，才算上传成功。返回 `404` 就说明**字节没落上去**。
+返回 `200` 且字节与本地一致（sha256 相等），才算上传成功。返回 `404` 就说明**字节没落上去**。
+
+> ⚠️ **不要拿 `/api/preview_file` 的字节跟源文件比**（2026-09-23 实测踩坑：
+> `机考下云谷.pages` 上传明明成功却被误判"回读 7402 vs 302518 字节"失败）。
+> 三个端点各回各的东西：
+>
+> | 端点 | 返回什么 |
+> |---|---|
+> | `/api/preview_file?id=` | 平台**生成的预览**：`.pages` 是一张 650×368 的 PNG 缩略图（7402B） |
+> | `/api/preview_source_file?id=` | **转换后的 PDF**（`.pages` → 70360B 的 pdf，302 到 `outTaskFile/…`） |
+> | `/api/new_download_file?id=` | **上传的源文件**：302 回 OSS 上我们 PUT 的原对象（302518B，sha256 与本地逐字节一致，`cmp` 实测通过） |
+>
+> `.pdf` 走 preview 恰好也回源字节，所以 91958 的 pdf 契约测试没暴露这个坑 ——
+> 换 `.pages`/iWork 这类**会被服务端转换**的格式才炸（`fileModelList` 之外，
+> `upload_file/new` 响应里还有 `previewImage` / `sourceFileUrl` 字段佐证转换存在）。
+> `urllib` 默认跟随 302，签名 URL 的 `Expires` 不用管。
 
 ### 第 2 步 · 提交
 
@@ -245,6 +263,10 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --only-new --yes
 | 图片 / 拍照 / 录音 / 在线文档 / python编程 / scratch编程 这几类成果 | 未实测。UI 上它们是**不同的入口和 input**（图片走 `accept=".gif,.jpeg,…"` 那个 input），payload 可能不同 |
 | 多文件提交 | 未单独验证（`fileList` 本身是数组，实测就是两个） |
 | 教师端 `submitCapture` / `insertBatchItemResult` | 未测，也不建议碰（那是批改侧） |
+| **归属字段是否被服务端校验** | ⚠️ **未实测，且这是本文最重要的一处未知**。`studentIds` / `taskUserRelationId` / `courseId` 全在 payload 里由客户端填。服务端会不会拒绝「`studentIds` 不是当前登录者」或「`taskUserRelationId` 不属于本人」的请求，**没有做过实验**。已知事实只有：`getMixedPublishDetail.students[]` 会把全班姓名、userId、`taskUserRelationId`、提交状态返回给任意学生会话（见 `api-tasks.md` §6.1）—— 也就是说替他人提交所需的标识符是**系统自己下发的**。本项目按 IDOR 边界**故意不测** |
+| **开关打开时服务端是否校验附件** | 未定案。**且此项无法用只读方式判定** —— 实测 `getMixedPublishDetail.students[]` 里的 `file` / `userFileCount` / `totalCount` 三个字段，对**已交和未交的学生都恒为 `null`**（2026-09-24，任务 43961，52 人名单）。也就是说该接口只给出"交没交"（`status`），**不给出"交了什么"**。想判断"有人零附件却已交"只能靠**写实验**（在 `needEnclosure=true` 的任务上提交空 `fileList`）。⚠️ 曾有一版审计用这三个恒空字段算出"已交的人 100% 零附件"，那是**测量假象**，不是发现，已作废 |
+| **提交接口是否校验 fileId 真实存在** | 未单独实测。已证伪的只是另一件事：**上传接口返回 `status:true` 不可信**（字节可能根本没落库，回读该 fileId 是 404）。「提交一个不存在的 fileId 会发生什么」没有实验记录 |
+| **`stuUploadFileTip` 取证方式** | 该文案取自**公开 CDN** 上的前端 bundle（`cdn-assets.yungu.org/task/<ver>/index.js`，无需登录），属静态取证，非推测 |
 
 ---
 

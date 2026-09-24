@@ -38,7 +38,7 @@ yungu_tasks.py — task.yungu.org 任务/课表/评论读取、接口侦察，�
   python3 yungu_tasks.py comments                      # 剩余任务的评论
   python3 yungu_tasks.py comments --teacher-only       # 只看老师/他人发的
   python3 yungu_tasks.py submit --task 91958 --file hw.pdf          # dry-run，不发
-  python3 yungu_tasks.py submit --task 91958 --file hw.pdf --yes    # 真的提交（需 --yes）
+  python3 yungu_tasks.py submit --task 91958 --file hw.pdf --yes    # 真的提交（需授权）
   python3 yungu_tasks.py probe                       # 各候选接口返回一览
   python3 yungu_tasks.py recon --bundle-url https://cdn-assets.yungu.org/task/<版本>/index.js
 
@@ -258,6 +258,9 @@ def call(path, cookie, params=None, method="GET", body=None):
     if params and method == "GET":
         path = path + "?" + urllib.parse.urlencode(params)
     st, text = http_request(path, cookie=cookie, method=method, body=body)
+    if st == 0 and isinstance(text, str) and text.startswith("<network error:"):
+        # 连接层失败（DNS/超时/不可达）：保留网络标记，别让它被翻译成“响应不是 JSON 信封”
+        return None, "网络不可达 %s（先查 VPN/外网，再考虑登录态）" % text, st, text
     pl = parse_json(text)
     logged, note = envelope_state(pl)
     return pl, note, st, text
@@ -311,7 +314,7 @@ def cmd_tasks(args):
     status = args.status
     params = {
         "courseId": "", "includeContentLike": "",
-        "inCludeTaskStatus": status, "pageNum": "1",
+        "inCludeTaskStatus": status, "pageNum": str(max(1, int(args.page))),
         "pageSize": str(args.page_size), "sortType": "2",
     }
     pl, note, st, text = call(LIST_ENDPOINT, args.cookie, params=params)
@@ -533,7 +536,7 @@ def cmd_comments(args):
     payload = []
     requests_made = 0
     for group, t in targets:
-        # 限流：每个任务一次请求，达到上限即停（对应 docs/script.md 的 --sleep / --max-requests）
+        # 限流：每个任务一次请求，达到上限即停（对应 README 免责声明第 6 条）
         if requests_made >= args.max_requests:
             print("\n!! 已达请求上限 %d（--max-requests 可调），停止扫描。" % args.max_requests)
             break
@@ -642,13 +645,22 @@ def _oss_put(oss, key, data, mime, timeout=90):
 
 
 def verify_file_readable(cookie, file_id, expect=None):
-    """回读该 fileId 的字节 —— 这是判断上传真假的唯一可信判据。
+    """回读该 fileId 的**源文件**字节 —— 判断上传真假的唯一可信判据。
 
     /api/upload_file/new 只要元数据格式对就会返回 status:true 和 fileId，
     即使字节从没传上去（实测踩过：POST 一发就走，拿到 fileId，回读 404）。
+
+    ⚠️ 端点必须用 new_download_file，**不能用 preview_file**（2026-09-23 实测踩坑）：
+      - preview_file         → 平台生成的**预览**。.pages 会回一张 650×368 的 PNG
+                               缩略图（7402B）；源文件端点 preview_source_file 回的
+                               也是转换后的 PDF（.pages→pdf）。拿它跟源字节比，
+                               .pages 永远"不一致"——上传明明成功却被误判失败。
+      - new_download_file    → 302 到 OSS 上我们 PUT 的**原始对象**，sha256 与本地
+                               完全一致（302518B 实测 cmp 通过），对所有类型都成立。
+      （urllib 默认跟随 302，签名 URL 的 Expires 不用管。）
     """
     req = urllib.request.Request(
-        "%s/api/preview_file?id=%s" % (BASE, file_id),
+        "%s/api/new_download_file?id=%s" % (BASE, file_id),
         headers={"User-Agent": UA, "Cookie": cookie,
                  "Referer": BASE + "/umiTask", "X-Requested-With": "XMLHttpRequest"})
     try:
@@ -982,6 +994,8 @@ def main():
     ap.add_argument("--status", default="0",
                     help="tasks 用 inCludeTaskStatus：0=未完成(默认) 1=全部历史 2=已完成")
     ap.add_argument("--page-size", type=int, default=50)
+    ap.add_argument("--page", type=int, default=1,
+                    help="tasks 用：页码 pageNum（默认 1），配合 --page-size 翻页取全量历史")
     ap.add_argument("--overdue", action="store_true",
                     help="tasks 用：只列出逾期任务（ifTimeout=true）")
     ap.add_argument("--task", help="comments/submit 用：taskPublishId（comments 可逗号分隔；submit 只取第一个）")
