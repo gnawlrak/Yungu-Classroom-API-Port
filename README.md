@@ -77,13 +77,23 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 | [`docs/recon-method.md`](docs/recon-method.md) | **接口侦察方法**：静态提取 + 浏览器 hook 完整配方 |
 | [`yungu_api_catalog.md`](yungu_api_catalog.md) | 1345 条接口目录 |
 
-### 不懂技术？用这个
+### 关于那个 Cookie 导出插件
 
-[`tools/yungu-cookie-helper/`](tools/yungu-cookie-helper/) 是一个浏览器插件，
-点一下就能把 Cookie 导出到剪贴板或存成 `cookie.txt`，不用碰开发者工具。
+曾有一个把 HttpOnly `SESSION` 一键导出的浏览器插件放在这里，**现已从公开仓库移除**，
+只在小范围内直接分发。
 
-它**只**申请了 `*.yungu.org` 的权限，源码无任何网络请求，可以自己打开核对。
-安装与安全须知见该目录的 README。
+移除原因不是它写得不对——它权限收窄到 `*.yungu.org`、源码零网络请求、可逐行审计。
+问题是**它不该以"可直接运行的凭据提取工具"的形态挂在公开仓库里**：
+
+- 任何人下载后把 `host_permissions` 改成 `<all_urls>`、加三行外发代码，
+  就得到一个能偷所有网站登录态的木马，改造成本接近零
+- 它的安装说明在教用户"开开发者模式 + 加载未打包扩展"，
+  而这正是钓鱼最依赖的那个动作
+- 这个仓库挂着学校的名字，公开一个"提取学生会话凭据"的工具，
+  读起来就是另一回事，与它的真实意图无关
+
+`docs/cookie.md` 保留了完整的方法说明、安全含义和三条路径的边界——
+**怎么做、为什么危险，这些公开是有价值的**；提供一个开箱即用的提取器则不是。
 
 ---
 
@@ -95,8 +105,6 @@ python3 yungu_tasks.py submit --task 91958 --file ./hw.pdf --yes
 ├── yungu_api_catalog.md            1345 条接口目录（按功能域→模块）
 ├── yungu_endpoints.json            同上机读版（method/service/module/category/mutating）
 ├── yungu_endpoints_discovered.json recon 实跑输出
-├── tools/
-│   └── yungu-cookie-helper/          一键导出 Cookie 的浏览器插件（不懂技术可用）
 ├── docs/
 │   ├── overview.md                 项目总览
 │   ├── api-tasks.md                任务 + 评论接口契约
